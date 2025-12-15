@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Scan Results - Smart CSP</title>
+</head>
+<body>
+    <h1>Scan Results for {{ url }}</h1>
+
+    <h2>Generated CSP Header</h2>
+    <pre>{{ csp_rule }}</pre>
+    <hr>
+
+    <h2>Scripts</h2>
+    <ul>
+        {% for script in scripts %}
+            <li>{{ script }}</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Images</h2>
+    <ul>
+        {% for img in images %}
+            <li>{{ img }}</li>
+        {% endfor %}
+    </ul>
+
+    <h2>CSS Files</h2>
+    <ul>
+        {% for css in css_files %}
+            <li>{{ css }}</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Fonts</h2>
+    <ul>
+        {% for font in fonts %}
+            <li>{{ font }}</li>
+        {% endfor %}
+    </ul>
+
+    <a href="/">Back</a>
+</body>
+</html>
