@@ -23,25 +23,31 @@ def index():
             driver = webdriver.Chrome(service=service, options=options)
             driver.get(url)
 
-            # Extract scripts
+            # Scripts
             scripts = [urljoin(driver.current_url, s.get_attribute('src'))
                        for s in driver.find_elements("tag name", "script")
                        if s.get_attribute('src')]
 
-            # Extract images
+            # Images
             images = [urljoin(driver.current_url, i.get_attribute('src'))
                       for i in driver.find_elements("tag name", "img")
                       if i.get_attribute('src')]
 
-            # Extract CSS files
+            # CSS files
             css_files = [urljoin(driver.current_url, c.get_attribute('href'))
                          for c in driver.find_elements("tag name", "link")
                          if c.get_attribute('rel') == 'stylesheet' and c.get_attribute('href')]
 
-            # Extract fonts (from link hrefs containing 'font')
+            # Fonts (from link hrefs containing 'font')
             fonts = [urljoin(driver.current_url, f.get_attribute('href'))
                      for f in driver.find_elements("tag name", "link")
                      if f.get_attribute('href') and 'font' in f.get_attribute('href')]
+
+            # Objects (for object-src)
+            objects = [urljoin(driver.current_url, o.get_attribute('data'))
+                    for o in driver.find_elements("tag name", "object")
+                    if o.get_attribute('data')]
+
 
             driver.quit()
 
