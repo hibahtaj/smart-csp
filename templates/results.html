@@ -6,7 +6,6 @@
 <body>
     <h1>Scan Results for {{ url }}</h1>
 
-    <h2>Generated CSP Header</h2>
     <h2>Sandbox Test Results</h2>
 
 {% if blocked_resources %}
@@ -17,10 +16,13 @@
         {% endfor %}
     </ul>
 {% else %}
+
     <p>No resources blocked. CSP seems safe!</p>
 {% endif %}
 
 <hr>
+
+    <h2>Generated CSP Header</h2>
 
     <pre>{{ csp_rule }}</pre>
     <hr>
