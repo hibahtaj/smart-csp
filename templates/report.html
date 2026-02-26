@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SmartCSP Security Report</title>
+
+    <style>
+        body {
+            font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+            background: #fafaf7;
+            color: #2e2e2e;
+            margin: 60px 50px;
+            line-height: 1.7;
+        }
+
+        h1, h2, h3, h4 {
+            color: #3f4f3c;
+            margin-top: 40px;
+        }
+
+        h1 { font-size: 32px; }
+        h2 { font-size: 24px; margin-bottom: 10px; }
+        h3 { font-size: 18px; }
+        h4 { font-size: 15px; margin-top: 20px; }
+
+        .section { margin-top: 50px; }
+
+        .muted {
+            color: #6f6f6f;
+            font-size: 13px;
+        }
+
+        .code-block {
+            background: #f2f4ef;
+            padding: 18px;
+            font-family: "Courier New", monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            border-radius: 6px;
+        }
+
+        .chart {
+            margin: 35px 0;
+            text-align: center;
+        }
+
+        .chart img {
+            max-width: 400px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+        }
+
+        table th, table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        table th {
+            background: #ABBB9C;
+            color: #fff;
+        }
+
+        ul { margin-left: 22px; }
+
+        .badge {
+            display: inline-block;
+            padding: 7px 14px;
+            background: #ABBB9C;
+            color: #fff;
+            border-radius: 18px;
+            font-size: 13px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .page-break {
+            page-break-before: always;
+        }
+
+        @page {
+            margin: 50px;
+            background: #fafaf7;
+
+            @bottom-center {
+                content: "SmartCSP Security Report · Generated {{ scan_date }}";
+                font-size: 11px;
+                color: #888;
+            }
+        }
+
+        .chart-row {
+            width: 100%;
+            margin-top: 30px;
+        }
+
+        .chart-cell {
+            width: 50%;
+            text-align: center;
+            vertical-align: top;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- COVER PAGE -->
+<div class="section">
+    <img src="logo.png" height="55" alt="SmartCSP Logo">
+    <h1>Content Security Policy (CSP) Security Report</h1>
+
+    <p class="muted">
+        Target Website: <strong>{{ url }}</strong><br>
+        Scan Timestamp: {{ scan_date }}
+    </p>
+
+    <p class="muted">
+        This report is generated automatically by SmartCSP based on observed
+        resource usage and runtime behavior. Content Security Policy (CSP) is
+        one component of a broader web security strategy and should be deployed
+        alongside other security best practices.
+    </p>
+</div>
+
+<div class="page-break"></div>
+
+<!-- EXECUTIVE SUMMARY -->
+<div class="section">
+    <h2>Executive Summary</h2>
+
+    <p>
+        Content Security Policy (CSP) is a browser-enforced security mechanism
+        that restricts the sources from which a web application can load and
+        execute content such as scripts, styles, images, and other resources.
+        When configured correctly, CSP significantly reduces the attack surface
+        for client-side vulnerabilities, particularly cross-site scripting (XSS)
+        and data injection attacks.
+    </p>
+
+    <p>
+        SmartCSP aims to simplify the adoption of strong CSP configurations by
+        automatically analyzing real resource usage on a target website and
+        generating a tailored policy that balances security with functionality.
+        Instead of relying on overly permissive defaults, SmartCSP derives
+        precise allowlists and validates the resulting policy through controlled
+        sandbox testing.
+        <ul>
+            <li><strong>Website analyzed:</strong> {{ url }}</li>
+            <li><strong>Scan timestamp:</strong> {{ scan_date }}</li>
+            <li><strong>Resources analyzed:</strong> Scripts, Images, Stylesheets, Fonts</li>
+            <li><strong>Testing method:</strong> Headless browser with enforced CSP</li>
+        </ul>
+    </p>
+
+    <p>
+        For the analyzed website, SmartCSP generated a custom CSP, evaluated its
+        effectiveness, and measured its relative strength compared to a typical
+        baseline configuration.
+    </p>
+
+    <span class="badge">Overall CSP Strength Score: {{ strength_score }}/100</span>
+
+    <div class="chart">
+        <img height=200px; src="static/charts/strength_donut.png">
+    </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- CSP COMPARISON -->
+<div class="section">
+    <h2>CSP Comparison Summary</h2>
+
+    <p>
+        Many websites either deploy no CSP at all or rely on permissive policies
+        that weaken the protection CSP is designed to provide. SmartCSP replaces
+        these generic configurations with a policy derived from observed usage,
+        removing unnecessary permissions and enforcing stricter controls.
+    </p>
+
+    <table>
+        <tr>
+            <th>Evaluation Factor</th>
+            <th>Before SmartCSP</th>
+            <th>After SmartCSP</th>
+        </tr>
+
+        <tr>
+            <td>Overall CSP Strength Score</td>
+            <td>{{ baseline_score }}/100</td>
+            <td>{{ strength_score }}/100</td>
+        </tr>
+
+        <tr>
+            <td>Script Execution Control</td>
+            <td>
+                {% if baseline_score < 30 %}
+                    Largely unrestricted
+                {% else %}
+                    Partially restricted
+                {% endif %}
+            </td>
+            <td>
+                Nonce-based script execution
+            </td>
+        </tr>
+
+        <tr>
+            <td>Wildcard Source Usage</td>
+            <td>
+                {% if "*" in csp_rule %}
+                    Present
+                {% else %}
+                    Not explicitly restricted
+                {% endif %}
+            </td>
+            <td>
+                Explicit allowlisting enforced
+            </td>
+        </tr>
+
+        <tr>
+            <td>Directive Coverage</td>
+            <td>
+                Limited or missing directives
+            </td>
+            <td>
+                Covers scripts, images, styles, fonts, and objects
+            </td>
+        </tr>
+
+        <tr>
+            <td>Resistance to XSS Attacks</td>
+            <td>
+                Low to moderate
+            </td>
+            <td>
+                Significantly improved through strict source control
+            </td>
+        </tr>
+    </table>
+    
+    <img src="static/charts/strength_comparison_bar.png",
+        alt="CSP Strength Comparison">
+
+           
+    
+</div>
+
+<div class="page-break"></div>
+
+<!-- GENERATED CSP -->
+<div class="section">
+    <h2>Generated SmartCSP Policy</h2>
+
+    <p>
+        Based on the discovered resources and observed behavior, SmartCSP
+        generated the following Content Security Policy header. This policy
+        is intended to be deployed as-is or tested in report-only mode prior
+        to enforcement.
+    </p>
+
+    <div class="code-block">{{ csp_rule }}</div>
+
+    <p>
+        The following chart visualizes the relative strength of the generated Content Security Policy across key security dimensions, providing a high-level overview of its effectiveness.
+    </p>
+
+    <img src="static/charts/security_radar.png"
+        alt="SmartCSP Security Radar">
+</div>
+
+
+<!-- SMARTCSP TEST RESULTS -->
+<div class="section">
+    <h2>SmartCSP Test Results</h2>
+
+    <p>
+        To validate the generated policy, SmartCSP enforced the CSP in a sandboxed
+        browser environment. During this phase, the website was loaded under the
+        generated policy and browser-level CSP violation reports were monitored
+        to identify blocked or problematic resource loads.
+    </p>
+
+    <div class="chart">
+        <img src="static/charts/test_results_bar.png">
+    </div>
+
+    <p>
+        The following resources were observed and evaluated during testing.
+    </p>
+
+    <h3>Allowed Resources</h3>
+
+    <h4>Scripts</h4>
+    <ul>{% for s in scripts %}<li>{{ s }}</li>{% endfor %}</ul>
+
+    <h4>Images</h4>
+    <ul>{% for i in images %}<li>{{ i }}</li>{% endfor %}</ul>
+
+    <h4>Stylesheets</h4>
+    <ul>{% for c in css_files %}<li>{{ c }}</li>{% endfor %}</ul>
+
+    <h4>Fonts</h4>
+    <ul>{% for f in fonts %}<li>{{ f }}</li>{% endfor %}</ul>
+
+    <h3>Blocked / Problematic Resources</h3>
+    {% if blocked_resources %}
+        <ul>{% for r in blocked_resources %}<li>{{ r }}</li>{% endfor %}</ul>
+    {% else %}
+        <p>No blocked resources were detected during testing.</p>
+    {% endif %}
+
+    <div class="chart">
+        <img src="static/charts/resource_breakdown_pie.png">
+    </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- DEPLOYMENT -->
+<div class="section">
+    <h2>Deployment Instructions</h2>
+
+    <h3>1. Deployment</h3>
+    <p>
+        To deploy the generated Content Security Policy (CSP), first copy the CSP header produced by 
+        <em>SmartCSP: CSP Generator, Tester, and Optimizer</em> exactly as shown in this report. 
+        This header defines the security rules that the browser must enforce when loading and executing resources.
+    </p>
+    <p>
+        The CSP must be included as an HTTP response header and can be configured either at the application backend
+        or at the web server level, depending on how the website is deployed.
+    </p>
+
+    <h4>Method 1: Backend Application</h4>
+    <p>
+        For dynamically generated websites, the CSP should be attached directly to the HTTP response
+        by the backend framework before the page is sent to the browser.
+    </p>
+
+    <h5>Flask (Python)</h5>
+    <div class="code-block">
+from flask import make_response, render_template
+
+@app.route("/")
+def index():
+    response = make_response(render_template("index.html"))
+
+    response.headers["Content-Security-Policy"] = (
+        "PASTE GENERATED CSP HERE"
+    )
+
+    return response
+    </div>
+
+    <h5>Node.js (Express)</h5>
+    <div class="code-block">
+app.use((req, res, next) => {
+    res.setHeader(
+        "Content-Security-Policy",
+        "PASTE GENERATED CSP HERE"
+    );
+    next();
+});
+    </div>
+
+
+    <h4>Method 2: Web Server Configuration</h4>
+    <p>
+        For static websites or reverse-proxy setups, the CSP can be configured directly in the web
+        server configuration so that it is applied globally to all responses.
+    </p>
+
+    <h5>Nginx</h5>
+    <div class="code-block">
+add_header Content-Security-Policy "&lt;PASTE GENERATED CSP HERE&gt;";
+    </div>
+    <p>
+        After updating the configuration, the Nginx service must be restarted for the changes to take effect.
+    </p>
+
+    <h5>Apache</h5>
+    <div class="code-block">
+Header set Content-Security-Policy "&lt; PASTE GENERATED CSP HERE &gt;"
+    </div>
+    <p>
+        After updating the configuration, the Apache service must be restarted to apply the CSP header.
+    </p>
+
+    <h3>2. Testing</h3>
+    <p>
+        Before enforcing the CSP in production, it is recommended to deploy the policy in report-only mode.
+        This allows violations to be logged without blocking resources.
+    </p>
+    <div class="code-block">
+Content-Security-Policy-Report-Only: ...
+    </div>
+
+    <h3>3. Verification</h3>
+    <p>
+        After deployment, the CSP should be verified using browser developer tools.
+    </p>
+    <ol>
+        <li>Open the website in a modern browser.</li>
+        <li>Open developer tools and navigate to the Network tab.</li>
+        <li>Select the main document request.</li>
+        <li>Inspect the Response Headers section.</li>
+    </ol>
+    <p>
+        If the policy is applied correctly, the Content-Security-Policy header will be visible and
+        any violations will appear in the browser console.
+    </p>
+</div>
+
+
+<!-- NONCE GUIDE -->
+<div class="section">
+    <h2>Nonce Usage Guide</h2>
+
+    <p>
+        A nonce (number used once) is a cryptographically secure random value that allows
+        specific inline scripts to execute under a strict Content Security Policy.
+        By requiring a nonce, the browser ensures that only explicitly authorized
+        scripts are permitted to run.
+    </p>
+
+    <p>
+        SmartCSP does not generate or embed nonces automatically, as nonce values must be
+        created securely on the server for each HTTP response. Including a static or reused
+        nonce would weaken the security guarantees provided by CSP and could be exploited
+        by attackers.
+    </p>
+
+    <h3>Generating a Secure Nonce</h3>
+    <p>
+        A new nonce must be generated for every request using a cryptographically secure
+        random number generator.
+    </p>
+
+    <div class="code-block">
+import secrets
+import base64
+
+def generate_nonce():
+    random_bytes = secrets.token_bytes(16)
+    return base64.b64encode(random_bytes).decode("utf-8")
+    </div>
+
+    <h3>Including the Nonce in the CSP Header</h3>
+    <p>
+        The generated nonce must be included in the Content Security Policy header so that
+        the browser knows which inline scripts are allowed to execute.
+    </p>
+
+    <div class="code-block">
+Content-Security-Policy: script-src 'self' 'nonce-{RANDOM_NONCE}'; object-src 'none';
+    </div>
+
+    <h3>5. Applying the Nonce to Inline Scripts</h3>
+    <p>
+        The same nonce value used in the CSP header must also be applied to the corresponding
+        inline script elements in the HTML.
+    </p>
+
+    <div class="code-block">
+&lt;script nonce="{RANDOM_NONCE}"&gt;
+    // Inline JavaScript code
+&lt;/script&gt;
+    </div>
+</div>
+
+</body>
+</html>

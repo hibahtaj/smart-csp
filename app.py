@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_file
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -6,8 +6,22 @@ from webdriver_manager.chrome import ChromeDriverManager
 from urllib.parse import urljoin
 from csp_generator.generate_csp import generate_csp
 from sandbox.test_csp import test_csp
+from datetime import datetime
+import os
+
+from utils.scoring import compute_strength_score, compute_baseline_score
+from utils.charts import (
+    generate_strength_donut,
+    generate_strength_comparison,
+    generate_resource_breakdown,
+    generate_test_results,
+    generate_security_radar
+)
 
 app = Flask(__name__)
+
+# TEMPORARY in-memory storage (OK for now)
+LATEST_SCAN = {}
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -54,18 +68,50 @@ def index():
             # Generate clean CSP header
             csp_rule = generate_csp(scripts, images, css_files, fonts)
 
-            # Run sandbox test
+            # ---- AFTER sandbox test ----
             blocked_resources = test_csp(url, csp_rule)
 
-            # Render results page
-            return render_template('results.html',
-                                   url=url,
-                                   scripts=scripts,
-                                   images=images,
-                                   css_files=css_files,
-                                   fonts=fonts,
-                                   csp_rule=csp_rule,
-                                   blocked_resources=blocked_resources)
+            # ---- METRICS ----
+            smart_score = compute_strength_score(csp_rule)
+            baseline_score = compute_baseline_score(None)  # no existing CSP yet
+
+            allowed_count = len(scripts) + len(images) + len(css_files) + len(fonts)
+            blocked_count = len(blocked_resources)
+
+            # ---- GENERATE CHARTS (DYNAMIC) ----
+            generate_strength_donut(smart_score)
+            generate_strength_comparison(baseline_score, smart_score)
+            generate_resource_breakdown(scripts, images, css_files, fonts)
+            generate_test_results(allowed_count, blocked_count)
+            generate_security_radar(csp_rule)
+
+            # ---- STORE DATA FOR REPORT ----
+            LATEST_SCAN.clear()
+            LATEST_SCAN.update({
+                "url": url,
+                "scripts": scripts,
+                "images": images,
+                "css_files": css_files,
+                "fonts": fonts,
+                "csp_rule": csp_rule,
+                "blocked_resources": blocked_resources,
+                "strength_score": smart_score,
+                "baseline_score": baseline_score,
+                "scan_date": datetime.now().strftime("%Y-%m-%d %H:%M")
+            })
+
+            # ---- RENDER RESULTS PAGE ----
+            return render_template(
+                "results.html",
+                url=url,
+                scripts=scripts,
+                images=images,
+                css_files=css_files,
+                fonts=fonts,
+                csp_rule=csp_rule,
+                blocked_resources=blocked_resources,
+                strength_score=smart_score
+            )
 
         except Exception as e:
             return f"Error fetching website: {e}"
@@ -73,7 +119,45 @@ def index():
     # GET request → show index page
     return render_template('index.html')
 
+# @app.route("/report")
+# def report():
+#     if not LATEST_SCAN:
+#         return "No scan data available", 400
+
+#     base_path = os.path.abspath(os.getcwd())
+
+#     return render_template(
+#         "report.html",
+#         base_path=base_path,
+#         **LATEST_SCAN
+#     )
+
+
+from weasyprint import HTML
+import os
+
+@app.route("/download-report")
+def download_report():
+    if not LATEST_SCAN:
+        return "No scan data available", 400
+
+    BASE_DIR = os.path.abspath(os.getcwd())
+    PDF_PATH = os.path.join(BASE_DIR, "static", "smartcsp_report.pdf")
+
+    html_content = render_template(
+        "report.html",
+        base_path=BASE_DIR,
+        **LATEST_SCAN
+    )
+
+    HTML(
+        string=html_content,
+        base_url=BASE_DIR  
+    ).write_pdf(PDF_PATH)
+
+    return send_file(PDF_PATH, as_attachment=True)
+
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, use_reloader=False)
 
