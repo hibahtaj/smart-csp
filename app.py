@@ -78,13 +78,15 @@ def index():
             allowed_count = len(scripts) + len(images) + len(css_files) + len(fonts)
             blocked_count = len(blocked_resources)
 
-            # ---- GENERATE CHARTS (DYNAMIC) ----
-            generate_strength_donut(smart_score)
-            generate_strength_comparison(baseline_score, smart_score)
-            generate_resource_breakdown(scripts, images, css_files, fonts)
-            generate_test_results(allowed_count, blocked_count)
-            generate_security_radar(csp_rule)
+            BASE_DIR = os.path.abspath(os.getcwd())
+            CHART_DIR = os.path.join(BASE_DIR, "static", "charts")
 
+            # ---- GENERATE CHARTS (DYNAMIC) ----
+            generate_strength_donut(smart_score, CHART_DIR)
+            generate_strength_comparison(baseline_score, smart_score, CHART_DIR)
+            generate_resource_breakdown(scripts, images, css_files, fonts, CHART_DIR)
+            generate_test_results(allowed_count, blocked_count, CHART_DIR)
+            generate_security_radar(csp_rule, CHART_DIR)
             # ---- STORE DATA FOR REPORT ----
             LATEST_SCAN.clear()
             LATEST_SCAN.update({
