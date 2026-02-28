@@ -281,7 +281,40 @@ res.setHeader("Content-Security-Policy", "{{ csp_rule }}");
             </div>
 
         </div>
+
+            
+        <p class="muted">
+            Refer to the full report for detailed deployment guidelines and best practices.
+        </p>
     </div>
+
+    
+    <!-- ================= NONCE ================= -->
+
+    <h2>Nonce-Based Script Authorization</h2>
+
+    <p>
+        A nonce (number used once) is a cryptographically secure random value that
+        allows specific inline scripts to execute under a strict Content Security Policy.
+    </p>
+
+    <p>
+        SmartCSP does not generate nonces automatically, as nonce values must be
+        created securely on the server for each request. Using static or reused
+        nonces would weaken CSP protections.
+    </p>
+
+    <pre class="code-block">
+    Content-Security-Policy: script-src 'self' 'nonce-{RANDOM_NONCE}'
+
+    &lt;script nonce="{RANDOM_NONCE}"&gt;
+        // Inline script
+    &lt;/script&gt;
+    </pre>
+
+    <p class="muted">
+        Refer to the full report for detailed nonce usage guidelines and best practices.
+    </p>
 
     <!-- ================= ACTIONS ================= -->
     <div class="section">
