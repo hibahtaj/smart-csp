@@ -65,7 +65,11 @@ def generate_test_results(allowed_count, blocked_count, chart_dir):
     plt.close()
 
 
-def generate_security_radar(csp_rule, chart_dir):
+def generate_security_radar(smart_csp: str, chart_dir: str):
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import os
+
     labels = [
         "Script Safety",
         "Inline Protection",
@@ -74,26 +78,36 @@ def generate_security_radar(csp_rule, chart_dir):
         "XSS Mitigation"
     ]
 
-    script_safety = 90 if "script-src" in csp_rule else 40
+    # ---------- BASELINE (ORIGINAL CSP) ----------
+    baseline_values = [
+        40,  # Script Safety
+        20,  # Inline Protection
+        30,  # Source Specificity
+        40,  # Directive Coverage
+        35   # XSS Mitigation
+    ]
+
+    # ---------- SMARTCSP SCORES ----------
+    script_safety = 90 if "script-src" in smart_csp else 40
 
     inline_protection = 85
-    if "unsafe-inline" in csp_rule:
+    if "unsafe-inline" in smart_csp:
         inline_protection = 25
-    elif "nonce-" in csp_rule:
+    elif "nonce-" in smart_csp:
         inline_protection = 90
 
-    specificity = 85 if "*" not in csp_rule else 30
+    specificity = 85 if "*" not in smart_csp else 30
 
-    directive_count = len([d for d in csp_rule.split(";") if d.strip()])
+    directive_count = len([d for d in smart_csp.split(";") if d.strip()])
     coverage = min(100, 40 + directive_count * 10)
 
     xss_mitigation = 90
-    if "unsafe-inline" in csp_rule:
+    if "unsafe-inline" in smart_csp:
         xss_mitigation -= 40
-    if "object-src 'none'" not in csp_rule:
+    if "object-src 'none'" not in smart_csp:
         xss_mitigation -= 20
 
-    values = [
+    smart_values = [
         script_safety,
         inline_protection,
         specificity,
@@ -101,35 +115,67 @@ def generate_security_radar(csp_rule, chart_dir):
         max(xss_mitigation, 20)
     ]
 
-    values += values[:1]
+    # Close the radar
+    baseline_values += baseline_values[:1]
+    smart_values += smart_values[:1]
+
     angles = np.linspace(0, 2 * np.pi, len(labels), endpoint=False)
     angles = np.concatenate([angles, [angles[0]]])
 
     plt.figure(figsize=(5.5, 5.5))
     ax = plt.subplot(111, polar=True)
 
-    ax.plot(angles, values, linewidth=2.5, color="#495043")
-    ax.fill(angles, values, color="#ABBB9C", alpha=0.45)
+    # ---- BASELINE (dashed, muted) ----
+    ax.plot(
+        angles,
+        baseline_values,
+        linewidth=2,
+        linestyle="--",
+        color="#9aa39a",
+        label="Original CSP (Baseline)"
+    )
+    ax.fill(
+        angles,
+        baseline_values,
+        color="#b07171",
+        alpha=0.15
+    )
+
+    # ---- SMARTCSP (solid, highlighted) ----
+    ax.plot(
+        angles,
+        smart_values,
+        linewidth=2.5,
+        color="#495043",
+        label="SmartCSP"
+    )
+    ax.fill(
+        angles,
+        smart_values,
+        color="#ABBB9C",
+        alpha=0.45
+    )
 
     ax.set_thetagrids(angles[:-1] * 180 / np.pi, labels)
     ax.set_ylim(0, 100)
     ax.set_yticks([20, 40, 60, 80])
-    ax.set_yticklabels(["20", "40", "60", "80"], fontsize=9, color="#666")
+    ax.set_yticklabels(["20", "40", "60", "80"], fontsize=9)
 
     ax.grid(color="#cfd6c9", linewidth=0.8)
     ax.spines["polar"].set_color("#cfd6c9")
 
     ax.set_title(
-        "SmartCSP Security Profile",
+        "CSP Security Profile Comparison",
         pad=22,
         fontsize=14,
         color="#495043"
     )
 
+    ax.legend(loc="lower center", bbox_to_anchor=(0.5, -0.25))
+
     plt.savefig(
-        save_path(chart_dir, "security_radar.png"),
+        os.path.join(chart_dir, "security_radar.png"),
         bbox_inches="tight",
         facecolor="#fafaf7"
     )
     plt.close()
-

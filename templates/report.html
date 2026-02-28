@@ -40,12 +40,13 @@
         }
 
         .chart {
-            margin: 35px 0;
+            margin: 24px 0;
             text-align: center;
         }
 
         .chart img {
-            max-width: 400px;
+            max-width: 250px;
+            height: auto;
         }
 
         table {
@@ -165,7 +166,7 @@
     <span class="badge">Overall CSP Strength Score: {{ strength_score }}/100</span>
 
     <div class="chart">
-        <img height=200px; src="static/charts/strength_donut.png">
+        <img src="static/charts/strength_donut.png">
     </div>
 </div>
 
@@ -243,12 +244,10 @@
             </td>
         </tr>
     </table>
-    
-    <img src="static/charts/strength_comparison_bar.png",
-        alt="CSP Strength Comparison">
-
-           
-    
+    <div class="chart">
+        <img src="static/charts/security_radar.png"
+            alt="SmartCSP Security Radar">
+    </div>
 </div>
 
 <div class="page-break"></div>
@@ -266,12 +265,21 @@
 
     <div class="code-block">{{ csp_rule }}</div>
 
-    <p>
-        The following chart visualizes the relative strength of the generated Content Security Policy across key security dimensions, providing a high-level overview of its effectiveness.
-    </p>
+    <div class="section">
+        <h2>What Would This CSP Block?</h2>
 
-    <img src="static/charts/security_radar.png"
-        alt="SmartCSP Security Radar">
+        <p>
+            If enforced, this policy would block potentially unsafe or unexpected
+            resource behavior, including the following:
+        </p>
+
+        <ul>
+            {% for item in block_summary %}
+                <li>{{ item }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
 </div>
 
 

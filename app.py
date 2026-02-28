@@ -8,8 +8,9 @@ from csp_generator.generate_csp import generate_csp
 from sandbox.test_csp import test_csp
 from datetime import datetime
 import os
+from weasyprint import HTML
 
-from utils.scoring import compute_strength_score, compute_baseline_score
+from utils.scoring import compute_strength_score, compute_baseline_score, compute_readability_score, generate_block_summary
 from utils.charts import (
     generate_strength_donut,
     generate_strength_comparison,
@@ -52,12 +53,12 @@ def index():
                          for c in driver.find_elements("tag name", "link")
                          if c.get_attribute('rel') == 'stylesheet' and c.get_attribute('href')]
 
-            # Fonts (from link hrefs containing 'font')
+            # Fonts
             fonts = [urljoin(driver.current_url, f.get_attribute('href'))
                      for f in driver.find_elements("tag name", "link")
                      if f.get_attribute('href') and 'font' in f.get_attribute('href')]
 
-            # Objects (for object-src)
+            # Objects 
             objects = [urljoin(driver.current_url, o.get_attribute('data'))
                     for o in driver.find_elements("tag name", "object")
                     if o.get_attribute('data')]
@@ -73,7 +74,9 @@ def index():
 
             # ---- METRICS ----
             smart_score = compute_strength_score(csp_rule)
-            baseline_score = compute_baseline_score(None)  # no existing CSP yet
+            baseline_score = compute_baseline_score(None)
+            readability_score = compute_readability_score(csp_rule)
+            block_summary = generate_block_summary(csp_rule)
 
             allowed_count = len(scripts) + len(images) + len(css_files) + len(fonts)
             blocked_count = len(blocked_resources)
@@ -81,12 +84,6 @@ def index():
             BASE_DIR = os.path.abspath(os.getcwd())
             CHART_DIR = os.path.join(BASE_DIR, "static", "charts")
 
-            # ---- GENERATE CHARTS (DYNAMIC) ----
-            generate_strength_donut(smart_score, CHART_DIR)
-            generate_strength_comparison(baseline_score, smart_score, CHART_DIR)
-            generate_resource_breakdown(scripts, images, css_files, fonts, CHART_DIR)
-            generate_test_results(allowed_count, blocked_count, CHART_DIR)
-            generate_security_radar(csp_rule, CHART_DIR)
             # ---- STORE DATA FOR REPORT ----
             LATEST_SCAN.clear()
             LATEST_SCAN.update({
@@ -99,6 +96,8 @@ def index():
                 "blocked_resources": blocked_resources,
                 "strength_score": smart_score,
                 "baseline_score": baseline_score,
+                "readability_score": readability_score,
+                "block_summary": block_summary,
                 "scan_date": datetime.now().strftime("%Y-%m-%d %H:%M")
             })
 
@@ -106,45 +105,43 @@ def index():
             return render_template(
                 "results.html",
                 url=url,
-                scripts=scripts,
-                images=images,
-                css_files=css_files,
-                fonts=fonts,
                 csp_rule=csp_rule,
-                blocked_resources=blocked_resources,
-                strength_score=smart_score
+                strength_score=smart_score,
+                readability_score=readability_score,
+                block_summary=block_summary
             )
 
         except Exception as e:
             return f"Error fetching website: {e}"
 
-    # GET request → show index page
     return render_template('index.html')
 
-# @app.route("/report")
-# def report():
-#     if not LATEST_SCAN:
-#         return "No scan data available", 400
-
-#     base_path = os.path.abspath(os.getcwd())
-
-#     return render_template(
-#         "report.html",
-#         base_path=base_path,
-#         **LATEST_SCAN
-#     )
-
-
-from weasyprint import HTML
-import os
-
-@app.route("/download-report")
-def download_report():
+@app.route("/report/preview")
+def report_preview():
     if not LATEST_SCAN:
         return "No scan data available", 400
 
     BASE_DIR = os.path.abspath(os.getcwd())
-    PDF_PATH = os.path.join(BASE_DIR, "static", "smartcsp_report.pdf")
+    CHART_DIR = os.path.join(BASE_DIR, "static", "charts")
+    PDF_PATH = os.path.join(BASE_DIR, "static", "smartcsp_preview.pdf")
+
+    generate_strength_donut(LATEST_SCAN["strength_score"], CHART_DIR)
+    generate_resource_breakdown(
+        LATEST_SCAN["scripts"],
+        LATEST_SCAN["images"],
+        LATEST_SCAN["css_files"],
+        LATEST_SCAN["fonts"],
+        CHART_DIR
+    )
+    generate_test_results(
+        len(LATEST_SCAN["scripts"]) +
+        len(LATEST_SCAN["images"]) +
+        len(LATEST_SCAN["css_files"]) +
+        len(LATEST_SCAN["fonts"]),
+        len(LATEST_SCAN["blocked_resources"]),
+        CHART_DIR
+    )
+    generate_security_radar(LATEST_SCAN["csp_rule"], CHART_DIR)
 
     html_content = render_template(
         "report.html",
@@ -152,14 +149,54 @@ def download_report():
         **LATEST_SCAN
     )
 
-    HTML(
-        string=html_content,
-        base_url=BASE_DIR  
-    ).write_pdf(PDF_PATH)
+    from weasyprint import HTML
+    HTML(string=html_content, base_url=BASE_DIR).write_pdf(PDF_PATH)
 
-    return send_file(PDF_PATH, as_attachment=True)
+    return send_file(PDF_PATH, mimetype="application/pdf")
+
+@app.route("/report/download")
+def report_download():
+    if not LATEST_SCAN:
+        return "No scan data available", 400
+
+    BASE_DIR = os.path.abspath(os.getcwd())
+    CHART_DIR = os.path.join(BASE_DIR, "static", "charts")
+    PDF_PATH = os.path.join(BASE_DIR, "static", "smartcsp_report.pdf")
+
+    # Ensure charts exist (in case user skips preview)
+    generate_strength_donut(LATEST_SCAN["strength_score"], CHART_DIR)
+    # generate_strength_comparison(
+    #     LATEST_SCAN["baseline_score"],
+    #     LATEST_SCAN["strength_score"],
+    #     CHART_DIR
+    # )
+    generate_resource_breakdown(
+        LATEST_SCAN["scripts"],
+        LATEST_SCAN["images"],
+        LATEST_SCAN["css_files"],
+        LATEST_SCAN["fonts"],
+        CHART_DIR
+    )
+    generate_test_results(
+        len(LATEST_SCAN["scripts"]) +
+        len(LATEST_SCAN["images"]) +
+        len(LATEST_SCAN["css_files"]) +
+        len(LATEST_SCAN["fonts"]),
+        len(LATEST_SCAN["blocked_resources"]),
+        CHART_DIR
+    )
+    generate_security_radar(LATEST_SCAN["csp_rule"], CHART_DIR)
+
+    html_content = render_template(
+        "report.html",
+        base_path=BASE_DIR,
+        **LATEST_SCAN
+    )
+
+    HTML(string=html_content, base_url=BASE_DIR).write_pdf(PDF_PATH)
+
+    return send_file(PDF_PATH, mimetype="application/pdf")
 
 
 if __name__ == "__main__":
     app.run(debug=True, use_reloader=False)
-
