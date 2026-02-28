@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, send_file
+from flask import Flask, redirect, render_template, request, send_file, url_for
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -10,7 +10,7 @@ from datetime import datetime
 import os
 from weasyprint import HTML
 
-from utils.scoring import compute_strength_score, compute_baseline_score, compute_readability_score, generate_block_summary
+from utils.scoring import compute_strength_score, compute_baseline_score, compute_readability_score, generate_advanced_resource_analysis, generate_block_summary, generate_csp_explanations
 from utils.charts import (
     generate_strength_donut,
     generate_strength_comparison,
@@ -77,9 +77,10 @@ def index():
             baseline_score = compute_baseline_score(None)
             readability_score = compute_readability_score(csp_rule)
             block_summary = generate_block_summary(csp_rule)
-
-            allowed_count = len(scripts) + len(images) + len(css_files) + len(fonts)
-            blocked_count = len(blocked_resources)
+            resource_analysis = generate_advanced_resource_analysis(
+    scripts, images, css_files, fonts, blocked_resources
+)
+            csp_explanations = generate_csp_explanations(csp_rule)
 
             BASE_DIR = os.path.abspath(os.getcwd())
             CHART_DIR = os.path.join(BASE_DIR, "static", "charts")
@@ -93,33 +94,45 @@ def index():
                 "css_files": css_files,
                 "fonts": fonts,
                 "csp_rule": csp_rule,
+                "resource_analysis": resource_analysis,
                 "blocked_resources": blocked_resources,
                 "strength_score": smart_score,
                 "baseline_score": baseline_score,
+                "csp_explanations": csp_explanations,
                 "readability_score": readability_score,
                 "block_summary": block_summary,
                 "scan_date": datetime.now().strftime("%Y-%m-%d %H:%M")
             })
+            print("LATEST_SCAN KEYS:", LATEST_SCAN.keys())
 
-            # ---- RENDER RESULTS PAGE ----
-            return render_template(
-                "results.html",
-                url=url,
-                csp_rule=csp_rule,
-                strength_score=smart_score,
-                readability_score=readability_score,
-                block_summary=block_summary
-            )
+
+            return redirect(url_for("results"))
 
         except Exception as e:
             return f"Error fetching website: {e}"
 
     return render_template('index.html')
 
+@app.route("/results")
+def results():
+    if not LATEST_SCAN:
+        return redirect(url_for("index"))
+
+    return render_template(
+        "results.html",
+        url=LATEST_SCAN["url"],
+        csp_rule=LATEST_SCAN["csp_rule"],
+        strength_score=LATEST_SCAN["strength_score"],
+        readability_score=LATEST_SCAN["readability_score"],
+        block_summary=LATEST_SCAN["block_summary"],
+        csp_explanations=LATEST_SCAN["csp_explanations"],
+        resource_analysis=LATEST_SCAN["resource_analysis"]
+    )
+
 @app.route("/report/preview")
 def report_preview():
     if not LATEST_SCAN:
-        return "No scan data available", 400
+        return redirect(url_for("index"))
 
     BASE_DIR = os.path.abspath(os.getcwd())
     CHART_DIR = os.path.join(BASE_DIR, "static", "charts")
@@ -143,13 +156,29 @@ def report_preview():
     )
     generate_security_radar(LATEST_SCAN["csp_rule"], CHART_DIR)
 
+
     html_content = render_template(
         "report.html",
         base_path=BASE_DIR,
-        **LATEST_SCAN
+
+        url=LATEST_SCAN["url"],
+        scan_date=LATEST_SCAN["scan_date"],
+        csp_rule=LATEST_SCAN["csp_rule"],
+
+        scripts=LATEST_SCAN["scripts"],
+        images=LATEST_SCAN["images"],
+        css_files=LATEST_SCAN["css_files"],
+        fonts=LATEST_SCAN["fonts"],
+        blocked_resources=LATEST_SCAN["blocked_resources"],
+
+        strength_score=LATEST_SCAN["strength_score"],
+        baseline_score=LATEST_SCAN["baseline_score"],
+        readability_score=LATEST_SCAN["readability_score"],
+
+        csp_explanations=LATEST_SCAN["csp_explanations"],
+        resource_analysis=LATEST_SCAN["resource_analysis"]
     )
 
-    from weasyprint import HTML
     HTML(string=html_content, base_url=BASE_DIR).write_pdf(PDF_PATH)
 
     return send_file(PDF_PATH, mimetype="application/pdf")
@@ -157,7 +186,7 @@ def report_preview():
 @app.route("/report/download")
 def report_download():
     if not LATEST_SCAN:
-        return "No scan data available", 400
+        return redirect(url_for("index"))
 
     BASE_DIR = os.path.abspath(os.getcwd())
     CHART_DIR = os.path.join(BASE_DIR, "static", "charts")
@@ -190,7 +219,23 @@ def report_download():
     html_content = render_template(
         "report.html",
         base_path=BASE_DIR,
-        **LATEST_SCAN
+
+        url=LATEST_SCAN["url"],
+        scan_date=LATEST_SCAN["scan_date"],
+        csp_rule=LATEST_SCAN["csp_rule"],
+
+        scripts=LATEST_SCAN["scripts"],
+        images=LATEST_SCAN["images"],
+        css_files=LATEST_SCAN["css_files"],
+        fonts=LATEST_SCAN["fonts"],
+        blocked_resources=LATEST_SCAN["blocked_resources"],
+
+        strength_score=LATEST_SCAN["strength_score"],
+        baseline_score=LATEST_SCAN["baseline_score"],
+        readability_score=LATEST_SCAN["readability_score"],
+
+        csp_explanations=LATEST_SCAN["csp_explanations"],
+        resource_analysis=LATEST_SCAN["resource_analysis"]
     )
 
     HTML(string=html_content, base_url=BASE_DIR).write_pdf(PDF_PATH)

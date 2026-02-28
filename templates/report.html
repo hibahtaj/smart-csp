@@ -104,6 +104,32 @@
             text-align: center;
             vertical-align: top;
         }
+
+        .metrics {
+            display: flex;
+            gap: 40px;
+            margin-top: 20px;
+        }
+
+        .metric-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 12px;
+            flex: 1;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.05);
+        }
+
+        .metric-value {
+            font-size: 36px;
+            font-weight: 600;
+            color: #3f4f3c;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: #777;
+            margin-top: 6px;
+        }
     </style>
 </head>
 
@@ -254,78 +280,73 @@
 
 <!-- GENERATED CSP -->
 <div class="section">
-    <h2>Generated SmartCSP Policy</h2>
+    <h2>Generated Content Security Policy</h2>
 
     <p>
-        Based on the discovered resources and observed behavior, SmartCSP
-        generated the following Content Security Policy header. This policy
-        is intended to be deployed as-is or tested in report-only mode prior
-        to enforcement.
+    Based on observed resource usage and sandbox testing, SmartCSP generated the
+    following Content Security Policy. Each directive corresponds to a specific
+    security objective and application requirement.
     </p>
 
     <div class="code-block">{{ csp_rule }}</div>
 
-    <div class="section">
-        <h2>What Would This CSP Block?</h2>
-
-        <p>
-            If enforced, this policy would block potentially unsafe or unexpected
-            resource behavior, including the following:
-        </p>
-
-        <ul>
-            {% for item in block_summary %}
-                <li>{{ item }}</li>
-            {% endfor %}
-        </ul>
-    </div>
-
+    <h3>Directive Rationale</h3>
+    <ul>
+    {% for name, explanation in csp_explanations %}
+        <li><strong>{{ name }}</strong>: {{ explanation }}</li>
+    {% endfor %}
+    </ul>
 </div>
+
+<div class="page-break"></div>
 
 
 <!-- SMARTCSP TEST RESULTS -->
 <div class="section">
-    <h2>SmartCSP Test Results</h2>
+    <h2>CSP Test Results</h2>
 
     <p>
-        To validate the generated policy, SmartCSP enforced the CSP in a sandboxed
-        browser environment. During this phase, the website was loaded under the
-        generated policy and browser-level CSP violation reports were monitored
-        to identify blocked or problematic resource loads.
+    To validate the generated policy, SmartCSP enforced the CSP within a sandboxed
+    browser environment. Resource loading behavior was monitored to determine which
+    requests were permitted and which were blocked or flagged.
     </p>
 
-    <div class="chart">
-        <img src="static/charts/test_results_bar.png">
+    <div class="metric-row">
+        <div class="metric-card">
+            <div class="metric-value">{{ blocked_resources|length }}</div>
+            <div class="metric-label">Blocked / Flagged Resources</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-value">
+                {{ scripts|length + images|length + css_files|length + fonts|length }}
+            </div>
+            <div class="metric-label">Total Resources Evaluated</div>
+        </div>
     </div>
 
-    <p>
-        The following resources were observed and evaluated during testing.
-    </p>
+    <div class="chart">
+        <img src="{{ base_path }}/static/charts/resource_breakdown_pie.png">
+    </div>
 
-    <h3>Allowed Resources</h3>
+    <h2>Resource Enforcement & Risk Analysis</h2>
 
-    <h4>Scripts</h4>
-    <ul>{% for s in scripts %}<li>{{ s }}</li>{% endfor %}</ul>
+    {% if resource_analysis is defined %}
+        {% for directive, data in resource_analysis.items() %}
+            <h3>{{ directive }}</h3>
+            <p>{{ data.analysis }}</p>
 
-    <h4>Images</h4>
-    <ul>{% for i in images %}<li>{{ i }}</li>{% endfor %}</ul>
-
-    <h4>Stylesheets</h4>
-    <ul>{% for c in css_files %}<li>{{ c }}</li>{% endfor %}</ul>
-
-    <h4>Fonts</h4>
-    <ul>{% for f in fonts %}<li>{{ f }}</li>{% endfor %}</ul>
-
-    <h3>Blocked / Problematic Resources</h3>
-    {% if blocked_resources %}
-        <ul>{% for r in blocked_resources %}<li>{{ r }}</li>{% endfor %}</ul>
+            {% if data.resources %}
+                <ul>
+                {% for res in data.resources %}
+                    <li class="muted">{{ res }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endfor %}
     {% else %}
-        <p>No blocked resources were detected during testing.</p>
+        <p class="muted">Resource analysis data is unavailable.</p>
     {% endif %}
 
-    <div class="chart">
-        <img src="static/charts/resource_breakdown_pie.png">
-    </div>
 </div>
 
 <div class="page-break"></div>
@@ -360,7 +381,7 @@ def index():
     response = make_response(render_template("index.html"))
 
     response.headers["Content-Security-Policy"] = (
-        "PASTE GENERATED CSP HERE"
+        "{{ csp_rule }}"
     )
 
     return response
@@ -371,7 +392,7 @@ def index():
 app.use((req, res, next) => {
     res.setHeader(
         "Content-Security-Policy",
-        "PASTE GENERATED CSP HERE"
+        {{ csp_rule }}
     );
     next();
 });
@@ -386,7 +407,7 @@ app.use((req, res, next) => {
 
     <h5>Nginx</h5>
     <div class="code-block">
-add_header Content-Security-Policy "&lt;PASTE GENERATED CSP HERE&gt;";
+add_header Content-Security-Policy "{{ csp_rule }}";
     </div>
     <p>
         After updating the configuration, the Nginx service must be restarted for the changes to take effect.
@@ -394,7 +415,7 @@ add_header Content-Security-Policy "&lt;PASTE GENERATED CSP HERE&gt;";
 
     <h5>Apache</h5>
     <div class="code-block">
-Header set Content-Security-Policy "&lt; PASTE GENERATED CSP HERE &gt;"
+Header set Content-Security-Policy "{{ csp_rule }}"
     </div>
     <p>
         After updating the configuration, the Apache service must be restarted to apply the CSP header.
