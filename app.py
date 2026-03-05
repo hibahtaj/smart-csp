@@ -103,7 +103,6 @@ def index():
                 "block_summary": block_summary,
                 "scan_date": datetime.now().strftime("%Y-%m-%d %H:%M")
             })
-            print("LATEST_SCAN KEYS:", LATEST_SCAN.keys())
 
 
             return redirect(url_for("results"))
@@ -194,11 +193,6 @@ def report_download():
 
     # Ensure charts exist (in case user skips preview)
     generate_strength_donut(LATEST_SCAN["strength_score"], CHART_DIR)
-    # generate_strength_comparison(
-    #     LATEST_SCAN["baseline_score"],
-    #     LATEST_SCAN["strength_score"],
-    #     CHART_DIR
-    # )
     generate_resource_breakdown(
         LATEST_SCAN["scripts"],
         LATEST_SCAN["images"],
