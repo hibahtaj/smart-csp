@@ -232,7 +232,7 @@
                 {% endif %}
             </td>
             <td>
-                Nonce-based script execution
+                Nonce-based script support
             </td>
         </tr>
 
@@ -324,10 +324,6 @@
         </div>
     </div>
 
-    <div class="chart">
-        <img src="{{ base_path }}/static/charts/resource_breakdown_pie.png">
-    </div>
-
     <h2>Resource Enforcement & Risk Analysis</h2>
 
     {% if resource_analysis is defined %}
@@ -346,6 +342,11 @@
     {% else %}
         <p class="muted">Resource analysis data is unavailable.</p>
     {% endif %}
+
+    
+    <div class="chart">
+        <img src="{{ base_path }}/static/charts/resource_breakdown_pie.png">
+    </div>
 
 </div>
 
@@ -468,7 +469,7 @@ Content-Security-Policy-Report-Only: ...
     <h3>Generating a Secure Nonce</h3>
     <p>
         A new nonce must be generated for every request using a cryptographically secure
-        random number generator.
+        random number generator. Both Python and Node JS code to generate nonce are as given below:
     </p>
 
     <div class="code-block">
@@ -480,6 +481,19 @@ def generate_nonce():
     return base64.b64encode(random_bytes).decode("utf-8")
     </div>
 
+    <div class="code-block">
+import crypto from 'node:crypto';
+
+function generateNonce() {
+  const bytes = crypto.randomBytes(16);
+
+  const nonce = bytes.toString('base64');
+
+  return nonce;
+}
+    </div>
+
+
     <h3>Including the Nonce in the CSP Header</h3>
     <p>
         The generated nonce must be included in the Content Security Policy header so that
@@ -490,7 +504,7 @@ def generate_nonce():
 Content-Security-Policy: script-src 'self' 'nonce-{RANDOM_NONCE}'; object-src 'none';
     </div>
 
-    <h3>5. Applying the Nonce to Inline Scripts</h3>
+    <h3>Applying the Nonce to Inline Scripts</h3>
     <p>
         The same nonce value used in the CSP header must also be applied to the corresponding
         inline script elements in the HTML.
