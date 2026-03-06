@@ -236,6 +236,94 @@ def report_download():
 
     return send_file(PDF_PATH, mimetype="application/pdf")
 
+import os
+import re
+import base64
+
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import (
+    Mail,
+    Attachment,
+    FileContent,
+    FileName,
+    FileType,
+    Disposition
+)
+
+
+@app.route("/send-report-email", methods=["POST"])
+def send_report_email():
+
+    if not LATEST_SCAN:
+        return {"status": "error", "message": "No scan data available"}, 400
+
+    name = request.form.get("name")
+    email = request.form.get("email")
+
+    # ---- EMAIL VALIDATION ----
+    email_pattern = r"^[\w\.-]+@[\w\.-]+\.\w+$"
+
+    if not name or not re.match(email_pattern, email):
+        return {"status": "error", "message": "Invalid name or email"}, 400
+
+    try:
+
+        BASE_DIR = os.path.abspath(os.getcwd())
+        PDF_PATH = os.path.join(BASE_DIR, "static", "smartcsp_report.pdf")
+        print("SENDGRID KEY:", os.environ.get("SENDGRID_API_KEY"))
+
+        # ---- GENERATE REPORT IF NOT PRESENT ----
+        if not os.path.exists(PDF_PATH):
+
+            html_content = render_template(
+                "report.html",
+                base_path=BASE_DIR,
+                **LATEST_SCAN
+            )
+
+            HTML(string=html_content, base_url=BASE_DIR).write_pdf(PDF_PATH)
+
+        # ---- PREPARE EMAIL ----
+        message = Mail(
+            from_email="smartcsp.security@gmail.com",
+            to_emails=email,
+            subject="SmartCSP Security Report for " + LATEST_SCAN["url"]
+        )
+
+        # ---- SENDGRID TEMPLATE ID ----
+        message.template_id = os.environ.get("SENDGRID_TEMPLATE_KEY")
+
+        # ---- VARIABLES FOR TEMPLATE ----
+        message.dynamic_template_data = {
+            "name": name,
+            "website": LATEST_SCAN["url"],
+            "scan_time": LATEST_SCAN["scan_date"]
+        }
+
+        # ---- ATTACH PDF ----
+        with open(PDF_PATH, "rb") as f:
+            data = f.read()
+
+        encoded_file = base64.b64encode(data).decode()
+
+        attachment = Attachment(
+            FileContent(encoded_file),
+            FileName("SmartCSP_Report.pdf"),
+            FileType("application/pdf"),
+            Disposition("attachment")
+        )
+
+        message.attachment = attachment
+
+        # ---- SEND EMAIL ----
+        sg = SendGridAPIClient(os.environ.get("SENDGRID_API_KEY"))
+        sg.send(message)
+
+        return {"status": "success"}
+
+    except Exception as e:
+        return {"status": "error", "message": str(e)}, 500
+
 
 if __name__ == "__main__":
     app.run(debug=True, use_reloader=False)
