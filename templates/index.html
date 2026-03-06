@@ -1,133 +1,402 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>SmartCSP</title>
+<meta charset="UTF-8">
+<title>SmartCSP</title>
 
-    <style>
-        body {
-            font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
-            background: #fafaf7;
-            color: #2e2e2e;
-            margin: 0;
-            padding: 0;
-        }
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-        .container {
-            max-width: 900px;
-            margin: 120px auto;
-            padding: 40px;
-        }
+<style>
 
-        h1 {
-            color: #3f4f3c;
-            font-size: 36px;
-            margin-bottom: 10px;
-        }
+html{
+scroll-behavior:smooth;
+}
 
-        p {
-            font-size: 16px;
-            color: #555;
-            max-width: 600px;
-        }
+body{
+font-family:"Inter","Segoe UI",Arial,sans-serif;
+margin:0;
+background:#8f9f88;
+color:#2f3b2f;
+}
 
-        .card {
-            margin-top: 40px;
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 30px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
-        }
+/* NAVBAR */
 
-        label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
+nav{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:20px 70px;
+background: rgb(230, 223, 200);
+box-shadow:0 3px 8px rgba(0,0,0,0.1);
+}
 
-        input[type="text"] {
-            width: 100%;
-            padding: 12px;
-            font-size: 15px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            margin-bottom: 20px;
-        }
+nav img{
+height:48px;
+}
 
-        button {
-            background: #ABBB9C;
-            color: #fff;
-            border: none;
-            padding: 12px 22px;
-            font-size: 15px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
+nav a{
+color:#2e3b2d;
+text-decoration:none;
+margin-left:25px;
+font-weight:500;
+font-size:15px;
+}
 
-        button:hover {
-            opacity: 0.9;
-        }
+nav a:hover{
+opacity:0.8;
+}
 
-        .status {
-            margin-top: 25px;
-            font-size: 14px;
-            color: #666;
-            display: none;
-        }
-    </style>
+/* HERO */
 
-    <script>
-        function showStatus() {
-            const statusBox = document.getElementById("status");
-            statusBox.style.display = "block";
+.hero{
+text-align:center;
+padding:100px 20px 60px;
+max-width:900px;
+margin:auto;
+}
 
-            const steps = [
-                "Initializing scan...",
-                "Discovering website resources...",
-                "Generating Content Security Policy...",
-                "Testing CSP in sandbox environment...",
-                "Calculating security metrics...",
-                "Generating report..."
-            ];
+.hero h1{
+font-size:46px;
+margin-bottom:10px;
+color:#2e3b2d;
+}
 
-            let index = 0;
-            statusBox.innerText = steps[index];
+.hero p{
+font-size:18px;
+color:#3f4f3c;
+}
 
-            setInterval(() => {
-                if (index < steps.length - 1) {
-                    index++;
-                    statusBox.innerText = steps[index];
-                }
-            }, 1800);
-        }
-    </script>
+/* FORM CARD */
+
+.card{
+margin-top:40px;
+background:rgb(230, 223, 200);;
+border-radius:14px;
+padding:35px;
+box-shadow:0 8px 25px rgba(0,0,0,0.12);
+}
+
+input[type="text"]{
+width:100%;
+padding:14px;
+border-radius:8px;
+border:none;
+margin-top:8px;
+margin-bottom:20px;
+font-size:15px;
+}
+
+button{
+background:#55624f;
+color:white;
+border:none;
+padding:12px 25px;
+border-radius:8px;
+cursor:pointer;
+font-size:15px;
+}
+
+button:hover{
+background:#3f4b3a;
+}
+
+/* SCROLL BUTTONS */
+
+.link-buttons{
+margin-top:30px;
+}
+
+.link-buttons button{
+margin:10px;
+background:#6c7a65;
+}
+
+.link-buttons button:hover{
+background:#55624f;
+}
+
+/* GENERAL SECTIONS */
+
+.section{
+padding:100px 20px;
+background:#e6dfc8;
+}
+
+.section-inner{
+max-width:1000px;
+margin:auto;
+}
+
+.section h2{
+font-size:34px;
+margin-bottom:15px;
+color:#2e3b2d;
+}
+
+/* CSP TEXT */
+
+.csp-info{
+font-size:17px;
+line-height:1.7;
+color:#3e4a3a;
+
+}
+
+/* RISKS */
+
+.risks{
+margin-top:40px;
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:25px;
+}
+
+.risk-card{
+background:white;
+padding:25px;
+border-radius:12px;
+box-shadow:0 5px 15px rgba(0,0,0,0.08);
+}
+
+.risk-card i{
+font-size:26px;
+color:#2e3b2d;
+margin-bottom:10px;
+}
+
+/* FEATURES */
+
+.features{
+margin-top:40px;
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+gap:25px;
+}
+
+.feature-box{
+background:white;
+padding:25px;
+border-radius:12px;
+box-shadow:0 5px 15px rgba(0,0,0,0.08);
+}
+
+.feature-box i{
+font-size:26px;
+color:#55624f;
+margin-bottom:10px;
+}
+
+/* STATUS TEXT */
+
+.status{
+margin-top:20px;
+font-size:14px;
+color:#2f3b2f;
+display:none;
+}
+
+footer{
+text-align:center;
+padding:40px;
+background:#6c7a65;
+color:white;
+}
+
+</style>
+
+<script>
+
+function showStatus(){
+
+const statusBox=document.getElementById("status");
+statusBox.style.display="block";
+
+const steps=[
+"Initializing scan...",
+"Discovering website resources...",
+"Generating Content Security Policy...",
+"Testing CSP in sandbox environment...",
+"Calculating security metrics...",
+"Generating report..."
+];
+
+let index=0;
+statusBox.innerText=steps[index];
+
+setInterval(()=>{
+if(index<steps.length-1){
+index++;
+statusBox.innerText=steps[index];
+}
+},1800);
+
+}
+
+</script>
+
 </head>
 
 <body>
 
-<div class="container">
-    <h1>SmartCSP</h1>
-    <p>
-        SmartCSP analyzes a websites runtime behavior to generate, test, and
-        evaluate a secure Content Security Policy tailored to real resource usage.
-    </p>
+<!-- NAVBAR -->
 
-    <div class="card">
-        <form method="POST" onsubmit="showStatus()">
-            <label for="website_url">Website URL</label>
-            <input
-                type="text"
-                id="website_url"
-                name="website_url"
-                placeholder="https://example.com"
-                required
-            >
-            <button type="submit">Generate CSP</button>
-        </form>
+<nav>
 
-        <div id="status" class="status"></div>
-    </div>
+    <img src="{{ url_for('static', filename='logo.png') }}">
+
+<div>
+<a href="#generate">Generate CSP</a>
+<a href="#csp">What is CSP</a>
+<a href="#features">Features</a>
 </div>
+
+</nav>
+
+<!-- HERO / GENERATE -->
+
+<section class="hero" id="generate">
+
+<h1>SmartCSP</h1>
+
+<p>
+SmartCSP analyzes a website's runtime behavior and generates
+a secure Content Security Policy tailored to real resource usage.
+</p>
+
+<div class="card">
+
+<form method="POST" onsubmit="showStatus()">
+
+<label>Website URL</label>
+
+<input
+type="text"
+name="website_url"
+placeholder="https://example.com"
+required
+>
+
+<button type="submit">Generate CSP</button>
+
+</form>
+
+<div id="status" class="status"></div>
+
+</div>
+
+<div class="link-buttons">
+
+<a href="#csp"><button>What is CSP?</button></a>
+<a href="#features"><button>See Features</button></a>
+
+</div>
+
+</section>
+
+<!-- CSP SECTION -->
+
+<section class="section" id="csp">
+
+<div class="section-inner">
+
+<h2>What is Content Security Policy?</h2>
+
+<p class="csp-info">
+
+Think of a website like a house. Every script, image, or stylesheet
+that loads on the page is like a visitor entering that house.
+
+Content Security Policy (CSP) acts like a **security guard at the door**.
+
+It tells the browser exactly **which sources are trusted** and blocks
+everything else. If an attacker tries to inject malicious code,
+the browser simply refuses to run it.
+
+Without CSP, websites become vulnerable to attacks like
+Cross-Site Scripting (XSS) where attackers inject scripts
+that run in a user's browser.
+
+</p>
+
+<h2>What Happens Without CSP?</h2>
+
+<div class="risks">
+
+<div class="risk-card">
+<i class="fa-solid fa-bug"></i>
+<h3>XSS Attacks</h3>
+<p>Attackers inject malicious scripts that steal user data or cookies.</p>
+</div>
+
+<div class="risk-card">
+<i class="fa-solid fa-user-secret"></i>
+<h3>Data Theft</h3>
+<p>Hackers can secretly send login credentials to external servers.</p>
+</div>
+
+<div class="risk-card">
+<i class="fa-solid fa-triangle-exclamation"></i>
+<h3>Website Defacement</h3>
+<p>Attackers can modify content or redirect users to harmful sites.</p>
+</div>
+
+<div class="risk-card">
+<i class="fa-solid fa-virus"></i>
+<h3>Malware Injection</h3>
+<p>Users may unknowingly download malware from compromised scripts.</p>
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- FEATURES -->
+
+<section class="section" id="features">
+
+<div class="section-inner">
+
+<h2>SmartCSP Features</h2>
+
+<div class="features">
+
+<div class="feature-box">
+<i class="fa-solid fa-shield-halved"></i>
+<h3>CSP Generation</h3>
+<p>Automatically generate policies based on real website resource usage.</p>
+</div>
+
+<div class="feature-box">
+<i class="fa-solid fa-vial"></i>
+<h3>Policy Testing</h3>
+<p>Test generated policies in a controlled environment to detect issues.</p>
+</div>
+
+<div class="feature-box">
+<i class="fa-solid fa-wand-magic-sparkles"></i>
+<h3>Policy Optimization</h3>
+<p>Remove unnecessary permissions while keeping the website functional.</p>
+</div>
+
+<div class="feature-box">
+<i class="fa-solid fa-chart-line"></i>
+<h3>Security Metrics</h3>
+<p>Generate strength and readability scores for CSP analysis.</p>
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<footer>
+
+SmartCSP • Secure websites with smarter Content Security Policies
+
+</footer>
 
 </body>
 </html>
