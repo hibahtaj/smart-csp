@@ -9,6 +9,19 @@ from sandbox.test_csp import test_csp
 from datetime import datetime
 import os
 from weasyprint import HTML
+import re
+import base64
+from email_validator import validate_email, EmailNotValidError
+
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import (
+    Mail,
+    Attachment,
+    FileContent,
+    FileName,
+    FileType,
+    Disposition
+)
 
 from utils.scoring import compute_strength_score, compute_baseline_score, compute_readability_score, generate_advanced_resource_analysis, generate_block_summary, generate_csp_explanations
 from utils.charts import (
@@ -182,75 +195,6 @@ def report_preview():
 
     return send_file(PDF_PATH, mimetype="application/pdf")
 
-@app.route("/report/download")
-def report_download():
-    if not LATEST_SCAN:
-        return redirect(url_for("index"))
-
-    BASE_DIR = os.path.abspath(os.getcwd())
-    CHART_DIR = os.path.join(BASE_DIR, "static", "charts")
-    PDF_PATH = os.path.join(BASE_DIR, "static", "smartcsp_report.pdf")
-
-    # Ensure charts exist (in case user skips preview)
-    generate_strength_donut(LATEST_SCAN["strength_score"], CHART_DIR)
-    generate_resource_breakdown(
-        LATEST_SCAN["scripts"],
-        LATEST_SCAN["images"],
-        LATEST_SCAN["css_files"],
-        LATEST_SCAN["fonts"],
-        CHART_DIR
-    )
-    generate_test_results(
-        len(LATEST_SCAN["scripts"]) +
-        len(LATEST_SCAN["images"]) +
-        len(LATEST_SCAN["css_files"]) +
-        len(LATEST_SCAN["fonts"]),
-        len(LATEST_SCAN["blocked_resources"]),
-        CHART_DIR
-    )
-    generate_security_radar(LATEST_SCAN["csp_rule"], CHART_DIR)
-
-    html_content = render_template(
-        "report.html",
-        base_path=BASE_DIR,
-
-        url=LATEST_SCAN["url"],
-        scan_date=LATEST_SCAN["scan_date"],
-        csp_rule=LATEST_SCAN["csp_rule"],
-
-        scripts=LATEST_SCAN["scripts"],
-        images=LATEST_SCAN["images"],
-        css_files=LATEST_SCAN["css_files"],
-        fonts=LATEST_SCAN["fonts"],
-        blocked_resources=LATEST_SCAN["blocked_resources"],
-
-        strength_score=LATEST_SCAN["strength_score"],
-        baseline_score=LATEST_SCAN["baseline_score"],
-        readability_score=LATEST_SCAN["readability_score"],
-
-        csp_explanations=LATEST_SCAN["csp_explanations"],
-        resource_analysis=LATEST_SCAN["resource_analysis"]
-    )
-
-    HTML(string=html_content, base_url=BASE_DIR).write_pdf(PDF_PATH)
-
-    return send_file(PDF_PATH, mimetype="application/pdf")
-
-import os
-import re
-import base64
-
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import (
-    Mail,
-    Attachment,
-    FileContent,
-    FileName,
-    FileType,
-    Disposition
-)
-
-
 @app.route("/send-report-email", methods=["POST"])
 def send_report_email():
 
@@ -261,10 +205,15 @@ def send_report_email():
     email = request.form.get("email")
 
     # ---- EMAIL VALIDATION ----
-    email_pattern = r"^[\w\.-]+@[\w\.-]+\.\w+$"
+    if not name:
+        return {"status": "error", "message": "Name is required"}, 400
 
-    if not name or not re.match(email_pattern, email):
-        return {"status": "error", "message": "Invalid name or email"}, 400
+    try:
+        validated = validate_email(email)
+        email = validated.email  # normalized email
+
+    except EmailNotValidError as e:
+        return {"status": "error", "message": str(e)}, 400
 
     try:
 
