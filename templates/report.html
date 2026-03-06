@@ -472,6 +472,8 @@ Content-Security-Policy-Report-Only: ...
         random number generator. Both Python and Node JS code to generate nonce are as given below:
     </p>
 
+    <h4>Python</h4>
+
     <div class="code-block">
 import secrets
 import base64
@@ -480,6 +482,9 @@ def generate_nonce():
     random_bytes = secrets.token_bytes(16)
     return base64.b64encode(random_bytes).decode("utf-8")
     </div>
+
+    
+    <h4>Node JS</h4>
 
     <div class="code-block">
 import crypto from 'node:crypto';
