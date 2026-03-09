@@ -220,11 +220,11 @@
         }
 
         .email-success{
-            color:#3f7d4e;
+            color:#3f4f3c;
         }
 
         .email-error{
-            color:#c0392b;
+            color:#581f1f;
         }
     </style>
 
@@ -281,27 +281,28 @@
                 method: "POST",
                 body: formData
             })
-            .then(res => res.json())
-            .then(data => {
+            .then(async res => {
 
-                if(data.status === "success"){
+                const data = await res.json()
+
+                if(res.ok && data.status === "success"){
 
                     messageBox.innerHTML =
-                    "<span class='email-success'>Report sent successfully!</span>"
+                    "<span class='email-success'>Report sent successfully! Please check your spam folder if you haven't received it.</span>"
 
                 }
                 else{
 
                     messageBox.innerHTML =
-                    "<span class='email-error'>Error sending email.</span>"
+                    `<span class='email-error'>${data.message}</span>`
 
                 }
 
             })
-            .catch(() => {
+            .catch((err) => {
 
                 messageBox.innerHTML =
-                "<span class='email-error'>Network error. Please try again.</span>"
+                `<span class='email-error'>${err.message}</span>`
 
             })
 

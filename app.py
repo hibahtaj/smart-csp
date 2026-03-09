@@ -9,19 +9,14 @@ from sandbox.test_csp import test_csp
 from datetime import datetime
 import os
 from weasyprint import HTML
-import re
 import base64
 from email_validator import validate_email, EmailNotValidError
 
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import (
-    Mail,
-    Attachment,
-    FileContent,
-    FileName,
-    FileType,
-    Disposition
-)
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
 
 from utils.scoring import compute_strength_score, compute_baseline_score, compute_readability_score, generate_advanced_resource_analysis, generate_block_summary, generate_csp_explanations
 from utils.charts import (
@@ -210,7 +205,7 @@ def send_report_email():
 
     try:
         validated = validate_email(email)
-        email = validated.email  # normalized email
+        email = validated.email
 
     except EmailNotValidError as e:
         return {"status": "error", "message": str(e)}, 400
@@ -219,7 +214,6 @@ def send_report_email():
 
         BASE_DIR = os.path.abspath(os.getcwd())
         PDF_PATH = os.path.join(BASE_DIR, "static", "smartcsp_report.pdf")
-        print("SENDGRID KEY:", os.environ.get("SENDGRID_API_KEY"))
 
         # ---- GENERATE REPORT IF NOT PRESENT ----
         if not os.path.exists(PDF_PATH):
@@ -232,41 +226,47 @@ def send_report_email():
 
             HTML(string=html_content, base_url=BASE_DIR).write_pdf(PDF_PATH)
 
-        # ---- PREPARE EMAIL ----
-        message = Mail(
-            from_email="smartcsp.security@gmail.com",
-            to_emails=email,
-            subject="SmartCSP Security Report for " + LATEST_SCAN["url"]
+        # ---- SMTP CONFIG ----
+        sender = os.environ.get("SMARTCSP_EMAIL_ID")
+        password = os.environ.get("SMARTCSP_APP_PASSWORD")
+
+        msg = MIMEMultipart("mixed")
+
+        msg["From"] = sender
+        msg["To"] = email
+        msg["Subject"] = "SmartCSP Security Report for " + LATEST_SCAN["url"]
+
+        # ---- HTML EMAIL TEMPLATE ----
+        email_html = render_template(
+            "email_template.html",
+            name=name,
+            website=LATEST_SCAN["url"],
+            scan_time=LATEST_SCAN["scan_date"],
+            csp_rule=LATEST_SCAN["csp_rule"]
         )
 
-        # ---- SENDGRID TEMPLATE ID ----
-        message.template_id = os.environ.get("SENDGRID_TEMPLATE_KEY")
-
-        # ---- VARIABLES FOR TEMPLATE ----
-        message.dynamic_template_data = {
-            "name": name,
-            "website": LATEST_SCAN["url"],
-            "scan_time": LATEST_SCAN["scan_date"]
-        }
+        msg.attach(MIMEText(email_html, "html"))
 
         # ---- ATTACH PDF ----
         with open(PDF_PATH, "rb") as f:
-            data = f.read()
 
-        encoded_file = base64.b64encode(data).decode()
+            part = MIMEBase("application", "octet-stream")
+            part.set_payload(f.read())
 
-        attachment = Attachment(
-            FileContent(encoded_file),
-            FileName("SmartCSP_Report.pdf"),
-            FileType("application/pdf"),
-            Disposition("attachment")
+        encoders.encode_base64(part)
+
+        part.add_header(
+            "Content-Disposition",
+            "attachment; filename=SmartCSP_Report.pdf"
         )
 
-        message.attachment = attachment
+        msg.attach(part)
 
         # ---- SEND EMAIL ----
-        sg = SendGridAPIClient(os.environ.get("SENDGRID_API_KEY"))
-        sg.send(message)
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+
+            server.login(sender, password)
+            server.send_message(msg)
 
         return {"status": "success"}
 
@@ -275,4 +275,4 @@ def send_report_email():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, use_reloader=False)
+    app.run(debug=True, use_reloader=False, port=5000)
