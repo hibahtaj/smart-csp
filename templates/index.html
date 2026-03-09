@@ -6,235 +6,322 @@
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-    <style>
+<style>
 
-    html{
-        scroll-behavior:smooth;
-    }
+html{
+scroll-behavior:smooth;
+}
 
-    body{
-        font-family:"Inter","Segoe UI",Arial,sans-serif;
-        margin:0;
-        background:#8f9f88;
-        color:#2f3b2f;
-    }
+body{
+font-family:"Inter","Segoe UI",Arial,sans-serif;
+margin:0;
+background:#8f9f88;
+color:#2f3b2f;
+}
 
-    /* NAVBAR */
+/* NAVBAR */
 
-    nav{
-        display:flex;
-        position: sticky;
-        top: 0;
-        justify-content:space-between;
-        align-items:center;
-        padding:20px 70px;
-        background: #fafaf7;
-        box-shadow:0 3px 8px rgba(0,0,0,0.1);
-    }
+nav{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:20px 70px;
+background: rgb(230, 223, 200);
+box-shadow:0 3px 8px rgba(0,0,0,0.1);
+}
 
-    nav img{
-        height:48px;
-    }
+nav img{
+height:48px;
+}
 
-    nav a{
-        color:#2e3b2d;
-        text-decoration:none;
-        margin-left:25px;
-        font-weight:500;
-        font-size:15px;
-    }
+nav a{
+color:#2e3b2d;
+text-decoration:none;
+margin-left:25px;
+font-weight:500;
+font-size:15px;
+}
 
-    nav a:hover{
-        opacity:0.8;
-    }
+nav a:hover{
+opacity:0.8;
+}
 
-    /* HERO */
+/* HERO */
 
-    .hero{
-        text-align:center;
-        padding:100px 20px 60px;
-        max-width:900px;
-        margin:auto;
-    }
+.hero{
+text-align:center;
+padding:100px 20px 60px;
+max-width:900px;
+margin:auto;
+}
 
-    .hero h1{
-        font-size:46px;
-        margin-bottom:10px;
-        color:#2e3b2d;
-    }
+.hero h1{
+font-size:46px;
+margin-bottom:10px;
+color:#2e3b2d;
+}
 
-    .hero p{
-        font-size:18px;
-        color:#3f4f3c;
-    }
+.hero p{
+font-size:18px;
+color:#3f4f3c;
+}
 
-    /* FORM CARD */
+/* FORM CARD */
 
-    .card{
-        margin-top:40px;
-        background:#fafaf7;
-        border-radius:14px;
-        padding:35px;
-        box-shadow:0 8px 25px rgba(0,0,0,0.12);
-    }
+.card{
+margin-top:40px;
+background:rgb(230, 223, 200);;
+border-radius:14px;
+padding:35px;
+box-shadow:0 8px 25px rgba(0,0,0,0.12);
+}
 
-    input[type="text"]{
-        width:100%;
-        padding:14px;
-        border-radius:8px;
-        border:none;
-        margin-top:8px;
-        margin-bottom:20px;
-        font-size:15px;
-    }
+input[type="text"]{
+width:100%;
+padding:14px;
+border-radius:8px;
+border:none;
+margin-top:8px;
+margin-bottom:20px;
+font-size:15px;
+}
 
-    button{
-        background:#55624f;
-        color:white;
-        border:none;
-        padding:12px 25px;
-        border-radius:8px;
-        cursor:pointer;
-        font-size:15px;
-    }
+button{
+background:#55624f;
+color:white;
+border:none;
+padding:12px 25px;
+border-radius:8px;
+cursor:pointer;
+font-size:15px;
+}
 
-    button:hover{
-        background:#3f4b3a;
-    }
+button:hover{
+background:#3f4b3a;
+}
 
-    /* SCROLL BUTTONS */
+/* SCROLL BUTTONS */
 
-    .link-buttons{
-        margin-top:30px;
-    }
+.link-buttons{
+margin-top:30px;
+}
 
-    .link-buttons button{
-        margin:10px;
-        background:#6c7a65;
-    }
+.link-buttons button{
+margin:10px;
+background:#6c7a65;
+}
 
-    .link-buttons button:hover{
-        background:#55624f;
-    }
+.link-buttons button:hover{
+background:#55624f;
+}
 
-    /* GENERAL SECTIONS */
+/* GENERAL SECTIONS */
 
-    .section{
-        padding:100px 20px;
-        background:#fafaf7;
-    }
+.section{
+padding:100px 20px;
+background:#e6dfc8;
+}
 
-    .section-inner{
-        max-width:1000px;
-        margin:auto;
-    }
+.section-inner{
+max-width:1000px;
+margin:auto;
+}
 
-    .section h2{
-        font-size:34px;
-        margin-bottom:15px;
-        color:#2e3b2d;
-    }
+.section h2{
+font-size:34px;
+margin-bottom:15px;
+color:#2e3b2d;
+}
 
-    /* CSP TEXT */
+/* CSP TEXT */
 
-    .csp-info{
-        font-size:17px;
-        line-height:1.7;
-        color:#3e4a3a;
+.csp-info{
+font-size:17px;
+line-height:1.7;
+color:#3e4a3a;
 
-    }
+}
 
-    /* RISKS */
+/* RISKS */
 
-    .risks{
-        margin-top:40px;
-        display:grid;
-        grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-        gap:25px;
-    }
+.risks{
+margin-top:40px;
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:25px;
+}
 
-    .risk-card{
-        background:white;
-        padding:25px;
-        border-radius:12px;
-        box-shadow:0 5px 15px rgba(0,0,0,0.08);
-    }
+.risk-card{
+background:white;
+padding:25px;
+border-radius:12px;
+box-shadow:0 5px 15px rgba(0,0,0,0.08);
+}
 
-    .risk-card i{
-        font-size:26px;
-        color:#2e3b2d;
-        margin-bottom:10px;
-    }
+.risk-card i{
+font-size:26px;
+color:#2e3b2d;
+margin-bottom:10px;
+}
 
-    /* FEATURES */
+/* FEATURES */
 
-    .features{
-        margin-top:40px;
-        display:grid;
-        grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
-        gap:25px;
-    }
+.features{
+margin-top:40px;
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+gap:25px;
+}
 
-    .feature-box{
-        background:white;
-        padding:25px;
-        border-radius:12px;
-        box-shadow:0 5px 15px rgba(0,0,0,0.08);
-    }
 
-    .feature-box i{
-        font-size:26px;
-        color:#55624f;
-        margin-bottom:10px;
-    }
+.feature-box i{
+font-size:26px;
+color:#55624f;
+margin-bottom:10px;
+background-color: antiquewhite;
+}
+/* FLASHCARD CONTAINER */
 
-    /* STATUS TEXT */
+/* FLASHCARD CONTAINER */
 
-    .status{
-        margin-top:20px;
-        font-size:14px;
-        color:#2f3b2f;
-        display:none;
-    }
+.flashcard-container{
+display:flex;
+justify-content:center;
+flex-wrap:wrap;
+gap:40px;
+margin-top:40px;
+}
 
-    footer{
-        text-align:center;
-        padding:40px;
-        background:#6c7a65;
-        color:white;
-    }
+/* FLASHCARD */
 
-    </style>
+.flashcard{
+width:260px;
+height:200px;
+perspective:1000px;
+}
 
-    <script>
+/* INNER CARD */
 
-    function showStatus(){
+.flashcard-inner{
+position:relative;
+width:100%;
+height:100%;
+transition:transform 0.7s;
+transform-style:preserve-3d;
+}
 
-        const statusBox=document.getElementById("status");
-        statusBox.style.display="block";
+/* FLIP EFFECT */
 
-        const steps=[
-            "Initializing scan...",
-            "Discovering website resources...",
-            "Generating Content Security Policy...",
-            "Testing CSP in sandbox environment...",
-            "Calculating security metrics...",
-            "Generating report..."
-        ];
+.flashcard:hover .flashcard-inner{
+transform:rotateY(180deg);
+}
 
-        let index=0;
-        statusBox.innerText=steps[index];
+/* FRONT AND BACK */
 
-        setInterval(()=>{
-            if(index<steps.length-1){
-                index++;
-                statusBox.innerText=steps[index];
-            }
-        }, 1800);
+.flashcard-front,
+.flashcard-back{
+position:absolute;
+width:100%;
+height:100%;
+backface-visibility:hidden;
+border-radius:12px;
+overflow:hidden;
+box-shadow:0 6px 18px rgba(0,0,0,0.15);
+}
 
-    }
+/* IMAGE FRONT */
 
-    </script>
+.flashcard-front img{
+width:100%;
+height:100%;
+object-fit:cover;
+}
+
+/* BACK SIDE */
+
+.flashcard-back{
+background:white;
+transform:rotateY(180deg);
+padding:20px;
+display:flex;
+flex-direction:column;
+justify-content:center;
+text-align:center;
+font-size:14px;
+}
+
+/* IMAGE SIZE FIX */
+
+.card-image{
+width:70px;
+height:auto;
+margin-bottom:12px;
+}
+
+
+
+/* IMAGE SIZE FIX */
+
+.card-image{
+width:70px;
+height:auto;
+margin-bottom:12px;
+}
+/* STATUS TEXT */
+
+.status{
+margin-top:20px;
+font-size:14px;
+color:#2f3b2f;
+display:none;
+}
+
+footer{
+text-align:center;
+padding:40px;
+background:#6c7a65;
+color:white;
+}
+
+</style>
+
+<script>
+
+function showStatus(){
+
+const statusBox=document.getElementById("status");
+statusBox.style.display="block";
+
+const steps=[
+"Initializing scan...",
+"Discovering website resources...",
+"Generating Content Security Policy...",
+"Testing CSP in sandbox environment...",
+"Calculating security metrics...",
+"Generating report..."
+];
+
+let index=0;
+statusBox.innerText=steps[index];
+
+setInterval(()=>{
+if(index<steps.length-1){
+index++;
+statusBox.innerText=steps[index];
+}
+},1800);
+
+}
+function toggleCard(card){
+  const text = card.querySelector(".card-text");
+
+  if(text.style.display === "block"){
+      text.style.display = "none";
+  } else {
+      text.style.display = "block";
+  }
+}
+</script>
 
 </head>
 
@@ -243,15 +330,9 @@
 <!-- NAVBAR -->
 
 <nav>
-<<<<<<< HEAD
 
 <img src="logo.png">
 
-=======
-    <div class="logo">
-        <img src="{{ url_for('static', filename='logo.png') }}" height="55">
-    </div>
->>>>>>> 525a2f15ceac11dfa909a81dd75ee174229d3f10
 <div>
 <a href="#generate">Generate CSP</a>
 <a href="#csp">What is CSP</a>
@@ -264,91 +345,99 @@
 
 <section class="hero" id="generate">
 
-    <h1>SmartCSP</h1>
+<h1>SmartCSP</h1>
 
-    <p>
-    SmartCSP analyzes a website's runtime behavior and generates
-    a secure Content Security Policy tailored to real resource usage.
-    </p>
+<p>
+SmartCSP analyzes a website's runtime behavior and generates
+a secure Content Security Policy tailored to real resource usage.
+</p>
 
-    <div class="card">
+<div class="card">
 
-        <form method="POST" onsubmit="showStatus()">
+<form method="POST" onsubmit="showStatus()">
 
-        <label>Website URL</label>
+<label>Website URL</label>
 
-        <input
-        type="text"
-        name="website_url"
-        placeholder="https://example.com"
-        required
-        >
+<input
+type="text"
+name="website_url"
+placeholder="https://example.com"
+required
+>
 
-        <button type="submit">Generate CSP</button>
+<button type="submit">Generate CSP</button>
 
-        </form>
+</form>
 
-        <div id="status" class="status"></div>
+<div id="status" class="status"></div>
 
-    </div>
+</div>
+
+<div class="link-buttons">
+
+<a href="#csp"><button>What is CSP?</button></a>
+<a href="#features"><button>See Features</button></a>
+
+</div>
+
 </section>
 
 <!-- CSP SECTION -->
 
 <section class="section" id="csp">
 
-    <div class="section-inner">
+<div class="section-inner">
 
-        <h2>What is Content Security Policy?</h2>
+<h2>What is Content Security Policy?</h2>
 
-        <p class="csp-info">
+<p class="csp-info">
 
-        Think of a website like a house. Every script, image, or stylesheet
-        that loads on the page is like a visitor entering that house.
+Think of a website like a house. Every script, image, or stylesheet
+that loads on the page is like a visitor entering that house.
 
-        Content Security Policy (CSP) acts like a <strong>security guard at the door</strong>.
+Content Security Policy (CSP) acts like a **security guard at the door**.
 
-        It tells the browser exactly <strong>which sources are trusted</strong> and blocks
-        everything else. If an attacker tries to inject malicious code,
-        the browser simply refuses to run it.
+It tells the browser exactly **which sources are trusted** and blocks
+everything else. If an attacker tries to inject malicious code,
+the browser simply refuses to run it.
 
-        Without CSP, websites become vulnerable to attacks like
-        Cross-Site Scripting (XSS) where attackers inject scripts
-        that run in a user's browser.
+Without CSP, websites become vulnerable to attacks like
+Cross-Site Scripting (XSS) where attackers inject scripts
+that run in a user's browser.
 
-        </p>
+</p>
 
-        <h2>What Happens Without CSP?</h2>
+<h2>What Happens Without CSP?</h2>
 
-        <div class="risks">
+<div class="risks">
 
-            <div class="risk-card">
-                <i class="fa-solid fa-bug"></i>
-                <h3>XSS Attacks</h3>
-                <p>Attackers inject malicious scripts that steal user data or cookies.</p>
-            </div>
+<div class="risk-card">
+<i class="fa-solid fa-bug"></i>
+<h3>XSS Attacks</h3>
+<p>Attackers inject malicious scripts that steal user data or cookies.</p>
+</div>
 
-            <div class="risk-card">
-                <i class="fa-solid fa-user-secret"></i>
-                <h3>Data Theft</h3>
-                <p>Hackers can secretly send login credentials to external servers.</p>
-            </div>
+<div class="risk-card">
+<i class="fa-solid fa-user-secret"></i>
+<h3>Data Theft</h3>
+<p>Hackers can secretly send login credentials to external servers.</p>
+</div>
 
-            <div class="risk-card">
-                <i class="fa-solid fa-triangle-exclamation"></i>
-                <h3>Website Defacement</h3>
-                <p>Attackers can modify content or redirect users to harmful sites.</p>
-            </div>
+<div class="risk-card">
+<i class="fa-solid fa-triangle-exclamation"></i>
+<h3>Website Defacement</h3>
+<p>Attackers can modify content or redirect users to harmful sites.</p>
+</div>
 
-            <div class="risk-card">
-                <i class="fa-solid fa-virus"></i>
-                <h3>Malware Injection</h3>
-                <p>Users may unknowingly download malware from compromised scripts.</p>
-            </div>
+<div class="risk-card">
+<i class="fa-solid fa-virus"></i>
+<h3>Malware Injection</h3>
+<p>Users may unknowingly download malware from compromised scripts.</p>
+</div>
 
-        </div>
+</div>
 
-    </div>
+</div>
 
 </section>
 
@@ -358,36 +447,131 @@
 
 <div class="section-inner">
 
-<h2>SmartCSP Features</h2>
+    <h2>SmartCSP Features</h2>
 
-<div class="features">
+    <div class="features">
+    
+    <div class="feature-box">
+    <i class="fa-solid fa-shield-halved"></i>
+    <h3>CSP Generation</h3>
+    <p>Automatically generate policies based on real website resource usage.</p>
+    </div>
+    
+    <div class="feature-box">
+    <i class="fa-solid fa-vial"></i>
+    <h3>Policy Testing</h3>
+    <p>Test generated policies in a controlled environment to detect issues.</p>
+    </div>
+    
+    <div class="feature-box">
+    <i class="fa-solid fa-wand-magic-sparkles"></i>
+    <h3>Policy Optimization</h3>
+    <p>Remove unnecessary permissions while keeping the website functional.</p>
+    </div>
+    
+    <div class="feature-box">
+    <i class="fa-solid fa-chart-line"></i>
+    <h3>Security Metrics</h3>
+    <p>Generate strength and readability scores for CSP analysis.</p>
+    </div>
+    
+    </div>
+    <section class="section" id="attacks">
 
-<div class="feature-box">
-<i class="fa-solid fa-shield-halved"></i>
-<h3>CSP Generation</h3>
-<p>Automatically generate policies based on real website resource usage.</p>
-</div>
+        <div class="section-inner">
+        
+        <h2>Attack Simulation</h2>
+        
+        <div class="flashcard-container">
+        
+        <!-- XSS -->
+        <div class="flashcard">
 
-<div class="feature-box">
-<i class="fa-solid fa-vial"></i>
-<h3>Policy Testing</h3>
-<p>Test generated policies in a controlled environment to detect issues.</p>
-</div>
+            <div class="flashcard-inner">
+            
+            <div class="flashcard-front">
+            <img src="{{ url_for('static', filename='xss.png') }}">
+            </div>
+            
+            <div class="flashcard-back">
+            
+            <h3>XSS Attack</h3>
+            
+            <p>
+            Attackers inject malicious JavaScript into a webpage to steal
+            cookies or user data.
+            </p>
+            
+           
+            
+            </div>
+            
+            </div>
+            
+            </div>
+        
+        <!-- INLINE -->
+        <div class="flashcard">
 
-<div class="feature-box">
-<i class="fa-solid fa-wand-magic-sparkles"></i>
-<h3>Policy Optimization</h3>
-<p>Remove unnecessary permissions while keeping the website functional.</p>
-</div>
+            <div class="flashcard-inner">
+            
+            <div class="flashcard-front">
+            
+                <img src="{{ url_for('static', filename='inline.png') }}" class="card-image">
+                <h3>Inline Script Injection</h3>
+            </div>
+            
+            <div class="flashcard-back">
+            
+            <b>XSS Attack</b>
+            
+            <p>
+            Attackers inject malicious JavaScript into a webpage
+            to steal cookies or user data.
+            </p>
+            
+            
+            
+            </div>
+            
+            </div>
+            
+            </div>
+        
+        <!-- CLICKJACKING -->
+        <div class="flashcard">
 
-<div class="feature-box">
-<i class="fa-solid fa-chart-line"></i>
-<h3>Security Metrics</h3>
-<p>Generate strength and readability scores for CSP analysis.</p>
-</div>
-
-</div>
-
+            <div class="flashcard-inner">
+            
+            <div class="flashcard-front">
+            
+                <img src="{{ url_for('static', filename='clickjacking.png') }}" class="card-image">
+                <h3>Clickjacking</h3>
+            
+            </div>
+            
+            <div class="flashcard-back">
+            
+            <b>XSS Attack</b>
+            
+            <p>
+            Attackers inject malicious JavaScript into a webpage
+            to steal cookies or user data.
+            </p>
+            
+            
+            
+            </div>
+            
+            </div>
+            
+            </div>
+        
+        </div>
+        
+        </div>
+        
+        </section>
 </div>
 
 </section>
