@@ -90,6 +90,8 @@ def index():
 )
             csp_explanations = generate_csp_explanations(csp_rule)
 
+
+
             BASE_DIR = os.path.abspath(os.getcwd())
             CHART_DIR = os.path.join(BASE_DIR, "static", "charts")
 
