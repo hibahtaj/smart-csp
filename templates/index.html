@@ -19,33 +19,6 @@ background:#8f9f88;
 color:#2f3b2f;
 }
 
-/* NAVBAR */
-
-nav{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:20px 70px;
-background: rgb(230, 223, 200);
-box-shadow:0 3px 8px rgba(0,0,0,0.1);
-}
-
-nav img{
-height:48px;
-}
-
-nav a{
-color:#2e3b2d;
-text-decoration:none;
-margin-left:25px;
-font-weight:500;
-font-size:15px;
-}
-
-nav a:hover{
-opacity:0.8;
-}
-
 /* HERO */
 
 .hero{
@@ -88,7 +61,7 @@ font-size:15px;
 
 button{
 background:#55624f;
-color:white;
+color:#bdcfac;
 border:none;
 padding:12px 25px;
 border-radius:8px;
@@ -118,7 +91,7 @@ background:#55624f;
 /* GENERAL SECTIONS */
 
 .section{
-padding:100px 20px;
+padding:40px 20px;
 background:#e6dfc8;
 }
 
@@ -129,7 +102,7 @@ margin:auto;
 
 .section h2{
 font-size:34px;
-margin-bottom:15px;
+margin-bottom:20px;
 color:#2e3b2d;
 }
 
@@ -152,7 +125,7 @@ gap:25px;
 }
 
 .risk-card{
-background:white;
+background:#bdcfac;
 padding:25px;
 border-radius:12px;
 box-shadow:0 5px 15px rgba(0,0,0,0.08);
@@ -173,7 +146,6 @@ z-index:0;
 pointer-events:none;
 }
 
-nav,
 .hero,
 .section,
 footer{
@@ -195,7 +167,7 @@ gap:25px;
 font-size:26px;
 color:#55624f;
 margin-bottom:10px;
-background-color: antiquewhite;
+background-color: #bdcfac;
 }
 /* FLASHCARD CONTAINER */
 
@@ -257,7 +229,7 @@ object-fit:cover;
 /* BACK SIDE */
 
 .flashcard-back{
-background:white;
+background:#bdcfac;
 transform:rotateY(180deg);
 padding:20px;
 display:flex;
@@ -298,6 +270,37 @@ text-align:center;
 padding:40px;
 background:#6c7a65;
 color:white;
+}
+
+
+/* NAVBAR */
+
+nav{
+display:flex;
+justify-content:space-between;
+position:sticky;
+z-index: 1000;
+top:0;
+align-items:center;
+padding:20px 70px;
+background: rgb(230, 223, 200);
+box-shadow:0 3px 8px rgba(0,0,0,0.1);
+}
+
+nav img{
+height:48px;
+}
+
+nav a{
+color:#2e3b2d;
+text-decoration:none;
+margin-left:25px;
+font-weight:500;
+font-size:15px;
+}
+
+nav a:hover{
+opacity:0.8;
 }
 
 </style>
@@ -391,13 +394,6 @@ required
 
 </div>
 
-<div class="link-buttons">
-
-<a href="#csp"><button>What is CSP?</button></a>
-<a href="#features"><button>See Features</button></a>
-
-</div>
-
 </section>
 
 <!-- CSP SECTION -->
@@ -460,35 +456,34 @@ required
 <div class="section-inner">
 
     <h2>What SmartCSP offers </h2>
+    <p>
+        SmartCSP simplifies the process of implementing strong Content Security Policies by generating policies tailored to a website’s actual resource usage. It helps developers improve security while maintaining normal website functionality. By analyzing and optimizing CSP configurations, SmartCSP encourages the adoption of safer web security practices. The platform also provides clear insights and recommendations, making it easier for developers to understand and strengthen their website’s protection against common web-based attacks.
+    </p>
 
     <div class="features">
     
-    <div class="feature-box">
-        <div class="risk-card">
+    <div class="risk-card">
     <i class="fa-solid fa-shield-halved"></i>
     <h3>CSP Generation</h3>
     <p>Automatically generate policies based on real website resource usage.</p>
-    </div></div>
+    </div>
     
-    <div class="feature-box">
-        <div class="risk-card">
+    <div class="risk-card">
     <i class="fa-solid fa-vial"></i>
     <h3>Policy Testing</h3>
     <p>Test generated policies in a controlled environment to detect issues.</p>
     </div>
-    </div></div>
     
-    <div class="feature-box">
-        <div class="risk-card">
+    <div class="risk-card">
     <i class="fa-solid fa-wand-magic-sparkles"></i>
     <h3>Policy Optimization</h3>
     <p>Remove unnecessary permissions while keeping the website functional.</p>
-    </div></div>
+    </div>
     
-    <div class="feature-box"><div class="risk-card">
+    <div class="risk-card">
     <i class="fa-solid fa-chart-line"></i>
-    <h3>Security Metrics</h3>
-    <p>Generate strength and readability scores for CSP analysis.</p>
+    <h3>PDF Report</h3>
+    <p>Generates in-depth analytics about generated CSP.</p>
     </div>
     
     </div>
@@ -542,11 +537,10 @@ required
             
             <div class="flashcard-back">
             
-            <b>XSS Attack</b>
+            <b>Inline Script Injection</b>
             
             <p>
-            Attackers inject malicious JavaScript into a webpage
-            to steal cookies or user data.
+             Attackers insert malicious code directly into a web page&apos;s HTML or JavaScript context, often through inline &lt;script&gt; tags or HTML event attributes
             </p>
             
             
@@ -571,11 +565,11 @@ required
             
             <div class="flashcard-back">
             
-            <b>XSS Attack</b>
+            <b>Clickjacking</b>
             
             <p>
-            Attackers inject malicious JavaScript into a webpage
-            to steal cookies or user data.
+            Attackers trick users into clicking on hidden or misleading elements
+            to perform unintended actions.
             </p>
             
             
