@@ -191,6 +191,7 @@ gap:25px;
 
 
 .feature-box i{
+    
 font-size:26px;
 color:#55624f;
 margin-bottom:10px;
@@ -409,18 +410,12 @@ required
 
 <p class="csp-info">
 
-Think of a website like a house. Every script, image, or stylesheet
-that loads on the page is like a visitor entering that house.
+    Content Security Policy (CSP) is a security standard that helps protect websites from a variety of attacks, particularly Cross-Site Scripting (XSS) 
+    and data injection attacks. It works by allowing website owners to specify which sources of content  such as scripts, stylesheets, images, and media are considered trusted.
+     The browser then enforces these rules, blocking any content that originates from untrusted sources.
 
-Content Security Policy (CSP) acts like a **security guard at the door**.
-
-It tells the browser exactly **which sources are trusted** and blocks
-everything else. If an attacker tries to inject malicious code,
-the browser simply refuses to run it.
-
-Without CSP, websites become vulnerable to attacks like
-Cross-Site Scripting (XSS) where attackers inject scripts
-that run in a user's browser.
+    
+    By implementing CSP, developers can significantly reduce the risk of malicious code executing in users’ browsers. This not only protects sensitive user data but also helps maintain the integrity of the website. In essence, CSP acts as a browser-level security policy that defines what content is safe to load and execute, providing an additional layer of defense against web-based attacks.
 
 </p>
 
@@ -464,29 +459,33 @@ that run in a user's browser.
 
 <div class="section-inner">
 
-    <h2>SmartCSP Features</h2>
+    <h2>What SmartCSP offers </h2>
 
     <div class="features">
     
     <div class="feature-box">
+        <div class="risk-card">
     <i class="fa-solid fa-shield-halved"></i>
     <h3>CSP Generation</h3>
     <p>Automatically generate policies based on real website resource usage.</p>
-    </div>
+    </div></div>
     
     <div class="feature-box">
+        <div class="risk-card">
     <i class="fa-solid fa-vial"></i>
     <h3>Policy Testing</h3>
     <p>Test generated policies in a controlled environment to detect issues.</p>
     </div>
+    </div></div>
     
     <div class="feature-box">
+        <div class="risk-card">
     <i class="fa-solid fa-wand-magic-sparkles"></i>
     <h3>Policy Optimization</h3>
     <p>Remove unnecessary permissions while keeping the website functional.</p>
-    </div>
+    </div></div>
     
-    <div class="feature-box">
+    <div class="feature-box"><div class="risk-card">
     <i class="fa-solid fa-chart-line"></i>
     <h3>Security Metrics</h3>
     <p>Generate strength and readability scores for CSP analysis.</p>
