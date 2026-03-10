@@ -194,6 +194,8 @@ border-top:1px solid #d6cfb3;
             border-radius: 12px;
             padding: 30px;
 
+            position:relative;
+
             box-shadow: 0 10px 30px rgba(0,0,0,0.08);
 
             text-align: center;
@@ -208,6 +210,23 @@ border-top:1px solid #d6cfb3;
             color: #777;
             font-size: 14px;
             margin-bottom: 20px;
+        }
+
+        .modal-close{
+            position:absolute;
+            top:10px;
+            right:14px;
+
+            background:none;
+            border:none;
+
+            font-size:20px;
+            cursor:pointer;
+            color:#777;
+        }
+
+        .modal-close:hover{
+            color:#333;
         }
 
         .modal-input {
@@ -598,7 +617,7 @@ Copy
     <div id="emailModal" class="modal">
 
         <div class="modal-card">
-
+            <button class="modal-close" onclick="closeModal()">&#215;</button>
             <h3>Email Security Report</h3>
 
             <p class="modal-subtext">

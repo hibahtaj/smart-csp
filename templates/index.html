@@ -1,670 +1,651 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>SmartCSP</title>
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-<style>
-
-html{
-scroll-behavior:smooth;
-}
-
-body{
-font-family:"Inter","Segoe UI",Arial,sans-serif;
-margin:0;
-background:#8f9f88;
-color:#2f3b2f;
-}
-
-/* HERO */
-
-.hero{
-text-align:center;
-padding:100px 20px 60px;
-max-width:900px;
-margin:auto;
-}
-
-.hero h1{
-font-size:46px;
-margin-bottom:10px;
-color:#2e3b2d;
-}
-
-.hero p{
-font-size:18px;
-color:#3f4f3c;
-}
-
-/* FORM CARD */
-
-.card{
-margin-top:40px;
-background:rgb(230, 223, 200);;
-border-radius:14px;
-padding:35px;
-box-shadow:0 8px 25px rgba(0,0,0,0.12);
-}
-
-input[type="text"]{
-width:100%;
-padding:14px;
-border-radius:8px;
-border:none;
-margin-top:8px;
-margin-bottom:20px;
-font-size:15px;
-}
-
-button{
-background:#55624f;
-color:#bdcfac;
-border:none;
-padding:12px 25px;
-border-radius:8px;
-cursor:pointer;
-font-size:15px;
-}
-
-button:hover{
-background:#3f4b3a;
-}
-
-/* SCROLL BUTTONS */
-
-.link-buttons{
-margin-top:30px;
-}
-
-.link-buttons button{
-margin:10px;
-background:#6c7a65;
-}
-
-.link-buttons button:hover{
-background:#55624f;
-}
-
-/* GENERAL SECTIONS */
-
-.section{
-padding:40px 20px;
-background:#e6dfc8;
-}
-
-.section-inner{
-max-width:1000px;
-margin:auto;
-}
-
-.section h2{
-font-size:34px;
-margin-bottom:20px;
-color:#2e3b2d;
-}
-
-/* CSP TEXT */
-
-.csp-info{
-font-size:17px;
-line-height:1.7;
-color:#3e4a3a;
-
-}
-
-/* RISKS */
-
-.risks{
-margin-top:40px;
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-gap:25px;
-}
-
-.risk-card{
-background:#bdcfac;
-padding:25px;
-border-radius:12px;
-box-shadow:0 5px 15px rgba(0,0,0,0.08);
-}
-
-.risk-card i{
-font-size:26px;
-color:#2e3b2d;
-margin-bottom:10px;
-}
-#network-bg{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-z-index:0;
-pointer-events:none;
-}
-
-.hero,
-.section,
-footer{
-position:relative;
-z-index:1;
-}
-/* FEATURES */
-
-.features{
-margin-top:40px;
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
-gap:25px;
-}
-
-
-.feature-box i{
-    
-font-size:26px;
-color:#55624f;
-margin-bottom:10px;
-background-color: #bdcfac;
-}
-/* FLASHCARD CONTAINER */
-
-/* FLASHCARD CONTAINER */
-
-.flashcard-container{
-display:flex;
-justify-content:center;
-flex-wrap:wrap;
-gap:40px;
-margin-top:40px;
-}
-
-/* FLASHCARD */
-
-.flashcard{
-width:260px;
-height:200px;
-perspective:1000px;
-}
-
-/* INNER CARD */
-
-.flashcard-inner{
-position:relative;
-width:100%;
-height:100%;
-transition:transform 0.7s;
-transform-style:preserve-3d;
-}
-
-/* FLIP EFFECT */
-
-.flashcard:hover .flashcard-inner{
-transform:rotateY(180deg);
-}
-
-/* FRONT AND BACK */
-
-.flashcard-front,
-.flashcard-back{
-position:absolute;
-width:100%;
-height:100%;
-backface-visibility:hidden;
-border-radius:12px;
-overflow:hidden;
-box-shadow:0 6px 18px rgba(0,0,0,0.15);
-}
-
-/* IMAGE FRONT */
-
-.flashcard-front img{
-width:100%;
-height:100%;
-object-fit:cover;
-}
-
-/* BACK SIDE */
-
-.flashcard-back{
-background:#bdcfac;
-transform:rotateY(180deg);
-padding:20px;
-display:flex;
-flex-direction:column;
-justify-content:center;
-text-align:center;
-font-size:14px;
-}
-
-/* IMAGE SIZE FIX */
-
-.card-image{
-width:70px;
-height:auto;
-margin-bottom:12px;
-}
-
-
-
-/* IMAGE SIZE FIX */
-
-.card-image{
-width:70px;
-height:auto;
-margin-bottom:12px;
-}
-/* STATUS TEXT */
-
-.status{
-margin-top:20px;
-font-size:14px;
-color:#2f3b2f;
-display:none;
-}
-
-footer{
-text-align:center;
-padding:40px;
-background:#6c7a65;
-color:white;
-}
-
-
-/* NAVBAR */
-
-nav{
-display:flex;
-justify-content:space-between;
-position:sticky;
-z-index: 1000;
-top:0;
-align-items:center;
-padding:20px 70px;
-background: rgb(230, 223, 200);
-box-shadow:0 3px 8px rgba(0,0,0,0.1);
-}
-
-nav img{
-height:48px;
-}
-
-nav a{
-color:#2e3b2d;
-text-decoration:none;
-margin-left:25px;
-font-weight:500;
-font-size:15px;
-}
-
-nav a:hover{
-opacity:0.8;
-}
-
-</style>
-
-<script>
-
-function showStatus(){
-
-const statusBox=document.getElementById("status");
-statusBox.style.display="block";
-
-const steps=[
-"Initializing scan...",
-"Discovering website resources...",
-"Generating Content Security Policy...",
-"Testing CSP in sandbox environment...",
-"Calculating security metrics...",
-"Generating report..."
-];
-
-let index=0;
-statusBox.innerText=steps[index];
-
-setInterval(()=>{
-if(index<steps.length-1){
-index++;
-statusBox.innerText=steps[index];
-}
-},1800);
-
-}
-function toggleCard(card){
-  const text = card.querySelector(".card-text");
-
-  if(text.style.display === "block"){
-      text.style.display = "none";
-  } else {
-      text.style.display = "block";
-  }
-}
-</script>
-
-</head>
-
-<body>
-
-<canvas id="network-bg"></canvas>
-<!-- NAVBAR -->
-
-<nav>
-
-<img src="{{ url_for('static', filename='logo.png') }}">
-
-<div>
-<a href="#generate">Generate CSP</a>
-<a href="#csp">What is CSP</a>
-<a href="#features">Features</a>
-</div>
-
-</nav>
-
-<!-- HERO / GENERATE -->
-
-<section class="hero" id="generate">
-
-<h1>SmartCSP</h1>
-
-<p>
-SmartCSP analyzes a website's runtime behavior and generates
-a secure Content Security Policy tailored to real resource usage.
-</p>
-
-<div class="card">
-
-<form method="POST" onsubmit="showStatus()">
-
-<label>Website URL</label>
-
-<input
-type="text"
-name="website_url"
-placeholder="https://example.com"
-required
->
-
-<button type="submit">Generate CSP</button>
-
-</form>
-
-<div id="status" class="status"></div>
-
-</div>
-
-</section>
-
-<!-- CSP SECTION -->
-
-<section class="section" id="csp">
-
-<div class="section-inner">
-
-<h2>What is Content Security Policy?</h2>
-
-<p class="csp-info">
-
-    Content Security Policy (CSP) is a security standard that helps protect websites from a variety of attacks, particularly Cross-Site Scripting (XSS) 
-    and data injection attacks. It works by allowing website owners to specify which sources of content  such as scripts, stylesheets, images, and media are considered trusted.
-     The browser then enforces these rules, blocking any content that originates from untrusted sources.
-
-    
-    By implementing CSP, developers can significantly reduce the risk of malicious code executing in users’ browsers. This not only protects sensitive user data but also helps maintain the integrity of the website. In essence, CSP acts as a browser-level security policy that defines what content is safe to load and execute, providing an additional layer of defense against web-based attacks.
-
-</p>
-
-<h2>What Happens Without CSP?</h2>
-
-<div class="risks">
-
-<div class="risk-card">
-<i class="fa-solid fa-bug"></i>
-<h3>XSS Attacks</h3>
-<p>Attackers inject malicious scripts that steal user data or cookies.</p>
-</div>
-
-<div class="risk-card">
-<i class="fa-solid fa-user-secret"></i>
-<h3>Data Theft</h3>
-<p>Hackers can secretly send login credentials to external servers.</p>
-</div>
-
-<div class="risk-card">
-<i class="fa-solid fa-triangle-exclamation"></i>
-<h3>Website Defacement</h3>
-<p>Attackers can modify content or redirect users to harmful sites.</p>
-</div>
-
-<div class="risk-card">
-<i class="fa-solid fa-virus"></i>
-<h3>Malware Injection</h3>
-<p>Users may unknowingly download malware from compromised scripts.</p>
-</div>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- FEATURES -->
-
-<section class="section" id="features">
-
-<div class="section-inner">
-
-    <h2>What SmartCSP offers </h2>
-    <p>
-        SmartCSP simplifies the process of implementing strong Content Security Policies by generating policies tailored to a website’s actual resource usage. It helps developers improve security while maintaining normal website functionality. By analyzing and optimizing CSP configurations, SmartCSP encourages the adoption of safer web security practices. The platform also provides clear insights and recommendations, making it easier for developers to understand and strengthen their website’s protection against common web-based attacks.
-    </p>
-
-    <div class="features">
-    
-    <div class="risk-card">
-    <i class="fa-solid fa-shield-halved"></i>
-    <h3>CSP Generation</h3>
-    <p>Automatically generate policies based on real website resource usage.</p>
-    </div>
-    
-    <div class="risk-card">
-    <i class="fa-solid fa-vial"></i>
-    <h3>Policy Testing</h3>
-    <p>Test generated policies in a controlled environment to detect issues.</p>
-    </div>
-    
-    <div class="risk-card">
-    <i class="fa-solid fa-wand-magic-sparkles"></i>
-    <h3>Policy Optimization</h3>
-    <p>Remove unnecessary permissions while keeping the website functional.</p>
-    </div>
-    
-    <div class="risk-card">
-    <i class="fa-solid fa-chart-line"></i>
-    <h3>PDF Report</h3>
-    <p>Generates in-depth analytics about generated CSP.</p>
-    </div>
-    
-    </div>
-    <section class="section" id="attacks">
-
-        <div class="section-inner">
-        
-        <h2>Attack Simulation</h2>
-        
-        <div class="flashcard-container">
-        
-        <!-- XSS -->
-        <div class="flashcard">
-
-            <div class="flashcard-inner">
-            
-            <div class="flashcard-front">
-            <img src="{{ url_for('static', filename='xss.png') }}">
+    <head>
+        <meta charset="UTF-8" />
+        <title>SmartCSP</title>
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Redacted+Script:wght@300;400;700&family=Roboto:ital,wght@0,100..900;1,100..900&family=Zen+Dots&display=swap" rel="stylesheet">
+
+        <style>
+            html {
+                scroll-behavior: smooth;
+            }
+
+            body {
+                font-family: "Inter", "Segoe UI", Arial, sans-serif;
+                margin: 0;
+                background: #8f9f88;
+                color: #2f3b2f;
+            }
+
+            /* HERO */
+
+            /* HERO SECTION */
+
+            .hero{
+                text-align:center;
+                padding:120px 20px 80px;
+                max-width:900px;
+                margin:auto;
+            }
+
+            .hero-logo{
+                font-size:100px;
+                color:var(--light-green);
+                display:flex;
+                justify-content:center;
+                align-items:center;
+                margin-bottom:20px;
+            }
+
+            /* typing animation */
+
+            .logo-typing{
+                font-family:"Zen Dots", sans-serif;
+                white-space:nowrap;
+                overflow:hidden;
+                width:0;
+                display:inline-block;
+
+                animation:
+                    typing 2.2s steps(8,end) forwards;
+            }
+
+            .cursor{
+                margin-left:6px;
+                animation:blink 1s step-end infinite;
+            }
+
+            /* animations */
+
+            @keyframes typing{
+                from{ width:0 }
+                to{ width:8.5ch }
+            }
+
+            @keyframes blink{
+                0%,100%{ opacity:1 }
+                50%{ opacity:0 }
+            }
+
+            /* text */
+
+            .hero p{
+                font-size:19px;
+                color:var(--dark-green);
+                max-width:650px;
+                margin:0 auto 40px;
+            }
+
+            .hero-label{
+                display:block;
+                text-align:left;
+                font-weight:600;
+                font-size:14px;
+                color:var(--dark-green);
+                margin-bottom:6px;
+            }
+
+            /* FORM CARD */
+
+            .card {
+                margin-top: 40px;
+                background: rgb(230, 223, 200);
+                border-radius: 14px;
+                padding: 35px;
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+            }
+
+            input[type="text"] {
+                width: 100%;
+                padding: 14px;
+                border-radius: 8px;
+                border: none;
+                margin-top: 8px;
+                margin-bottom: 20px;
+                font-size: 15px;
+            }
+
+            button {
+                background: #55624f;
+                color: #ffffff;
+                border: none;
+                padding: 12px 25px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 15px;
+            }
+
+            button:hover {
+                background: #3f4b3a;
+            }
+
+            /* SCROLL BUTTONS */
+
+            .link-buttons {
+                margin-top: 30px;
+            }
+
+            .link-buttons button {
+                margin: 10px;
+                background: #6c7a65;
+            }
+
+            .link-buttons button:hover {
+                background: #55624f;
+            }
+
+            /* GENERAL SECTIONS */
+
+            .section {
+                padding: 40px 20px;
+                background: #e6dfc8;
+            }
+
+            .section-inner {
+                max-width: 1000px;
+                margin: auto;
+            }
+
+            .section h2 {
+                font-size: 34px;
+                margin-bottom: 20px;
+                color: #2e3b2d;
+            }
+
+            /* CSP TEXT */
+
+            .csp-info {
+                font-size: 17px;
+                line-height: 1.7;
+                color: #3e4a3a;
+            }
+
+            /* RISKS */
+
+            .risks {
+                margin-top: 40px;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                gap: 25px;
+            }
+
+            .risk-card {
+                background: #bdcfac;
+                padding: 25px;
+                border-radius: 12px;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            }
+
+            .risk-card i {
+                font-size: 26px;
+                color: #2e3b2d;
+                margin-bottom: 10px;
+            }
+            #network-bg {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 0;
+                pointer-events: none;
+            }
+
+            .hero,
+            .section,
+            footer {
+                position: relative;
+                z-index: 1;
+            }
+            /* FEATURES */
+
+            .features {
+                margin-top: 40px;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+                gap: 25px;
+            }
+
+            .feature-box i {
+                font-size: 26px;
+                color: #55624f;
+                margin-bottom: 10px;
+                background-color: #bdcfac;
+            }
+            /* FLASHCARD CONTAINER */
+
+            /* FLASHCARD CONTAINER */
+
+            .flashcard-container {
+                display: flex;
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 40px;
+                margin-top: 40px;
+            }
+
+            /* FLASHCARD */
+
+            .flashcard {
+                width: 260px;
+                height: 200px;
+                perspective: 1000px;
+            }
+
+            /* INNER CARD */
+
+            .flashcard-inner {
+                position: relative;
+                width: 100%;
+                height: 100%;
+                transition: transform 0.7s;
+                transform-style: preserve-3d;
+            }
+
+            /* FLIP EFFECT */
+
+            .flashcard:hover .flashcard-inner {
+                transform: rotateY(180deg);
+            }
+
+            /* FRONT AND BACK */
+
+            .flashcard-front,
+            .flashcard-back {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                backface-visibility: hidden;
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+            }
+
+            /* IMAGE FRONT */
+
+            .flashcard-front img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            /* BACK SIDE */
+
+            .flashcard-back {
+                background: #bdcfac;
+                transform: rotateY(180deg);
+                padding: 20px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                text-align: center;
+                font-size: 14px;
+            }
+
+            /* IMAGE SIZE FIX */
+
+            .card-image {
+                width: 70px;
+                height: auto;
+                margin-bottom: 12px;
+            }
+
+            /* IMAGE SIZE FIX */
+
+            .card-image {
+                width: 70px;
+                height: auto;
+                margin-bottom: 12px;
+            }
+            /* STATUS TEXT */
+
+            .status {
+                margin-top: 20px;
+                font-size: 14px;
+                color: #2f3b2f;
+                display: none;
+            }
+
+            footer {
+                text-align: center;
+                padding: 40px;
+                background: #6c7a65;
+                color: white;
+            }
+
+            /* NAVBAR */
+
+            nav {
+                display: flex;
+                justify-content: space-between;
+                position: sticky;
+                z-index: 1000;
+                top: 0;
+                align-items: center;
+                padding: 20px 70px;
+                background: rgb(230, 223, 200);
+                box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            nav img {
+                height: 48px;
+            }
+
+            nav a {
+                color: #2e3b2d;
+                text-decoration: none;
+                margin-left: 25px;
+                font-weight: 500;
+                font-size: 15px;
+            }
+
+            nav a:hover {
+                opacity: 0.8;
+            }
+        </style>
+
+        <script>
+            function showStatus() {
+                const statusBox = document.getElementById("status");
+                statusBox.style.display = "block";
+
+                const steps = [
+                    "Initializing scan...",
+                    "Discovering website resources...",
+                    "Generating Content Security Policy...",
+                    "Testing CSP in sandbox environment...",
+                    "Calculating security metrics...",
+                    "Generating report...",
+                ];
+
+                let index = 0;
+                statusBox.innerText = steps[index];
+
+                setInterval(() => {
+                    if (index < steps.length - 1) {
+                        index++;
+                        statusBox.innerText = steps[index];
+                    }
+                }, 1800);
+            }
+            function toggleCard(card) {
+                const text = card.querySelector(".card-text");
+
+                if (text.style.display === "block") {
+                    text.style.display = "none";
+                } else {
+                    text.style.display = "block";
+                }
+            }
+        </script>
+    </head>
+
+    <body>
+        <canvas id="network-bg"></canvas>
+        <!-- NAVBAR -->
+
+        <nav>
+            <img src="{{ url_for('static', filename='logo.png') }}" />
+
+            <div>
+                <a href="#generate">Generate CSP</a>
+                <a href="#csp">What is CSP</a>
+                <a href="#features">Features</a>
             </div>
-            
-            <div class="flashcard-back">
-            
-            <h3>XSS Attack</h3>
-            
+        </nav>
+
+        <!-- HERO / GENERATE -->
+
+        <section class="hero" id="generate">
+            <div class="hero-logo">
+                <span class="logo-typing" aria-label="smartCSP">smartCSP</span>
+                <span class="cursor" aria-hidden="true">_</span>
+            </div>
+
             <p>
-            Attackers inject malicious JavaScript into a webpage to steal
-            cookies or user data.
+                SmartCSP analyzes a website's runtime behavior and generates a secure Content Security Policy tailored
+                to real resource usage.
             </p>
-            
-           
-            
 
-            
-            
-            </div>
-            
-            </div>
-            
-            </div>
-        
-        <!-- INLINE -->
-        <div class="flashcard">
+            <div class="card">
+                <form method="POST" action="/" onsubmit="showStatus()">
+                    <label class="hero-label">Website URL</label>
 
-            <div class="flashcard-inner">
-            
-            <div class="flashcard-front">
-            
-                <img src="{{ url_for('static', filename='inline.png') }}" class="card-image">
-                <h3>Inline Script Injection</h3>
-            </div>
-            
-            <div class="flashcard-back">
-            
-            <b>Inline Script Injection</b>
-            
-            <p>
-             Attackers insert malicious code directly into a web page&apos;s HTML or JavaScript context, often through inline &lt;script&gt; tags or HTML event attributes
-            </p>
-            
-            
-            
-            </div>
-            
-            </div>
-            
-            </div>
-        
-        <!-- CLICKJACKING -->
-        <div class="flashcard">
+                    <input type="text" name="website_url" placeholder="https://example.com" required />
 
-            <div class="flashcard-inner">
-            
-            <div class="flashcard-front">
-            
-                <img src="{{ url_for('static', filename='clickjacking.png') }}" class="card-image">
-                <h3>Clickjacking</h3>
-            
+                    <button type="submit" class="primary-btn">Generate CSP</button>
+                </form>
+
+                <div id="status" class="status"></div>
             </div>
-            
-            <div class="flashcard-back">
-            
-            <b>Clickjacking</b>
-            
-            <p>
-            Attackers trick users into clicking on hidden or misleading elements
-            to perform unintended actions.
-            </p>
-            
-            
-            
-            </div>
-            
-            </div>
-            
-            </div>
-        
-        </div>
-        
-        </div>
-        
         </section>
-</div>
-<script>
 
-const canvas = document.getElementById("network-bg")
-const ctx = canvas.getContext("2d")
+        <!-- CSP SECTION -->
 
-canvas.width = window.innerWidth
-canvas.height = window.innerHeight
+        <section class="section" id="csp">
+            <div class="section-inner">
+                <h2>What is Content Security Policy?</h2>
 
-let nodes=[]
+                <p class="csp-info">
+                    Content Security Policy (CSP) is a security standard that helps protect websites from a variety of
+                    attacks, particularly Cross-Site Scripting (XSS) and data injection attacks. It works by allowing
+                    website owners to specify which sources of content such as scripts, stylesheets, images, and media
+                    are considered trusted. The browser then enforces these rules, blocking any content that originates
+                    from untrusted sources. By implementing CSP, developers can significantly reduce the risk of
+                    malicious code executing in users’ browsers. This not only protects sensitive user data but also
+                    helps maintain the integrity of the website. In essence, CSP acts as a browser-level security policy
+                    that defines what content is safe to load and execute, providing an additional layer of defense
+                    against web-based attacks.
+                </p>
 
-for(let i=0;i<30;i++){
-nodes.push({
-x:Math.random()*canvas.width,
-y:Math.random()*canvas.height,
-vx:(Math.random()-0.5)*0.4,
-vy:(Math.random()-0.5)*0.4
-})
-}
+                <h2>What Happens Without CSP?</h2>
 
-function draw(){
+                <div class="risks">
+                    <div class="risk-card">
+                        <i class="fa-solid fa-bug"></i>
+                        <h3>XSS Attacks</h3>
+                        <p>Attackers inject malicious scripts that steal user data or cookies.</p>
+                    </div>
 
-ctx.clearRect(0,0,canvas.width,canvas.height)
+                    <div class="risk-card">
+                        <i class="fa-solid fa-user-secret"></i>
+                        <h3>Data Theft</h3>
+                        <p>Hackers can secretly send login credentials to external servers.</p>
+                    </div>
 
-nodes.forEach(n=>{
+                    <div class="risk-card">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <h3>Website Defacement</h3>
+                        <p>Attackers can modify content or redirect users to harmful sites.</p>
+                    </div>
 
-n.x+=n.vx
-n.y+=n.vy
+                    <div class="risk-card">
+                        <i class="fa-solid fa-virus"></i>
+                        <h3>Malware Injection</h3>
+                        <p>Users may unknowingly download malware from compromised scripts.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-if(n.x<0||n.x>canvas.width) n.vx*=-1
-if(n.y<0||n.y>canvas.height) n.vy*=-1
+        <!-- FEATURES -->
 
-/* glow */
+        <section class="section" id="features">
+            <div class="section-inner">
+                <h2>What SmartCSP offers</h2>
+                <p>
+                    SmartCSP simplifies the process of implementing strong Content Security Policies by generating
+                    policies tailored to a website’s actual resource usage. It helps developers improve security while
+                    maintaining normal website functionality. By analyzing and optimizing CSP configurations, SmartCSP
+                    encourages the adoption of safer web security practices. The platform also provides clear insights
+                    and recommendations, making it easier for developers to understand and strengthen their website’s
+                    protection against common web-based attacks.
+                </p>
 
-const gradient = ctx.createRadialGradient(
-n.x,n.y,0,
-n.x,n.y,10
-)
+                <div class="features">
+                    <div class="risk-card">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <h3>CSP Generation</h3>
+                        <p>Automatically generate policies based on real website resource usage.</p>
+                    </div>
 
-gradient.addColorStop(0,"rgba(85,98,79,0.9)")
-gradient.addColorStop(1,"rgba(85,98,79,0)")
+                    <div class="risk-card">
+                        <i class="fa-solid fa-vial"></i>
+                        <h3>Policy Testing</h3>
+                        <p>Test generated policies in a controlled environment to detect issues.</p>
+                    </div>
 
-ctx.fillStyle = gradient
-ctx.beginPath()
-ctx.arc(n.x,n.y,10,0,Math.PI*2)
-ctx.fill()
+                    <div class="risk-card">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <h3>Policy Optimization</h3>
+                        <p>Remove unnecessary permissions while keeping the website functional.</p>
+                    </div>
 
-/* node core */
+                    <div class="risk-card">
+                        <i class="fa-solid fa-chart-line"></i>
+                        <h3>PDF Report</h3>
+                        <p>Generates in-depth analytics about generated CSP.</p>
+                    </div>
+                </div>
+                <section class="section" id="attacks">
+                    <div class="section-inner">
+                        <h2>Attacks Without CSP</h2>
 
-ctx.beginPath()
-ctx.arc(n.x,n.y,2,0,Math.PI*2)
-ctx.fillStyle="#55624f"
-ctx.fill()
+                        <div class="flashcard-container">
+                            <!-- XSS -->
+                            <div class="flashcard">
+                                <div class="flashcard-inner">
+                                    <div class="flashcard-front">
+                                        <img src="{{ url_for('static', filename='xss.png') }}" />
+                                    </div>
 
-nodes.forEach(m=>{
+                                    <div class="flashcard-back">
+                                        <h3>XSS Attack</h3>
 
-let dist = Math.hypot(n.x-m.x,n.y-m.y)
+                                        <p>
+                                            Attackers inject malicious JavaScript into a webpage to steal cookies or
+                                            user data.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
 
-if(dist<140){
+                            <!-- INLINE -->
+                            <div class="flashcard">
+                                <div class="flashcard-inner">
+                                    <div class="flashcard-front">
+                                        <img src="{{ url_for('static', filename='inline.png') }}" class="card-image" />
+                                        <h3>Inline Script Injection</h3>
+                                    </div>
 
-ctx.beginPath()
-ctx.moveTo(n.x,n.y)
-ctx.lineTo(m.x,m.y)
+                                    <div class="flashcard-back">
+                                        <b>Inline Script Injection</b>
 
-ctx.strokeStyle="rgba(63,75,58,0.25)"
-ctx.lineWidth=1
-ctx.stroke()
+                                        <p>
+                                            Attackers insert malicious code directly into a web page&apos;s HTML or
+                                            JavaScript context, often through inline &lt;script&gt; tags or HTML event
+                                            attributes
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
 
-}
+                            <!-- CLICKJACKING -->
+                            <div class="flashcard">
+                                <div class="flashcard-inner">
+                                    <div class="flashcard-front">
+                                        <img
+                                            src="{{ url_for('static', filename='clickjacking.png') }}"
+                                            class="card-image"
+                                        />
+                                        <h3>Clickjacking</h3>
+                                    </div>
 
-})
+                                    <div class="flashcard-back">
+                                        <b>Clickjacking</b>
 
-})
+                                        <p>
+                                            Attackers trick users into clicking on hidden or misleading elements to
+                                            perform unintended actions.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            <script>
+                const canvas = document.getElementById("network-bg");
+                const ctx = canvas.getContext("2d");
 
-requestAnimationFrame(draw)
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
 
-}
+                let nodes = [];
 
-draw()
+                for (let i = 0; i < 30; i++) {
+                    nodes.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        vx: (Math.random() - 0.5) * 0.4,
+                        vy: (Math.random() - 0.5) * 0.4,
+                    });
+                }
 
-</script>
-</section></body>
+                function draw() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                    nodes.forEach((n) => {
+                        n.x += n.vx;
+                        n.y += n.vy;
+
+                        if (n.x < 0 || n.x > canvas.width) n.vx *= -1;
+                        if (n.y < 0 || n.y > canvas.height) n.vy *= -1;
+
+                        /* glow */
+
+                        const gradient = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, 10);
+
+                        gradient.addColorStop(0, "rgba(85,98,79,0.9)");
+                        gradient.addColorStop(1, "rgba(85,98,79,0)");
+
+                        ctx.fillStyle = gradient;
+                        ctx.beginPath();
+                        ctx.arc(n.x, n.y, 10, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        /* node core */
+
+                        ctx.beginPath();
+                        ctx.arc(n.x, n.y, 2, 0, Math.PI * 2);
+                        ctx.fillStyle = "#55624f";
+                        ctx.fill();
+
+                        nodes.forEach((m) => {
+                            let dist = Math.hypot(n.x - m.x, n.y - m.y);
+
+                            if (dist < 140) {
+                                ctx.beginPath();
+                                ctx.moveTo(n.x, n.y);
+                                ctx.lineTo(m.x, m.y);
+
+                                ctx.strokeStyle = "rgba(63,75,58,0.25)";
+                                ctx.lineWidth = 1;
+                                ctx.stroke();
+                            }
+                        });
+                    });
+
+                    requestAnimationFrame(draw);
+                }
+
+                draw();
+            </script>
+        </section>
+    </body>
 </html>
