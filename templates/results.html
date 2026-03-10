@@ -6,19 +6,39 @@
 
     <style>
         body {
-            font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
-            background: #fafaf7;
-            color: #2e2e2e;
-            margin: 0;
-            padding: 0;
-        }
+    font-family: "Inter","Segoe UI",Arial,sans-serif;
+    margin:0;
+    background:#8f9f88;
+    color:#2f3b2f;
+}
+#network-bg{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+z-index:-1;
+background:#8f9f88;
+}
 
-        .container {
-            max-width: 1000px;
-            margin: 80px auto;
-            padding: 0 30px;
-        }
-
+canvas{
+display:block;
+}
+        
+            .container {
+    max-width: 1000px;
+    margin: 80px auto;
+    padding: 40px;
+    background: rgb(230,223,200);
+    border-radius:14px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.12);
+}
+        
+.section{
+margin-top:45px;
+padding-top:10px;
+border-top:1px solid #d6cfb3;
+}
         h1 {
             font-size: 34px;
             color: #3f4f3c;
@@ -52,7 +72,8 @@
         }
 
         pre.code-block {
-            background: #f2f4ef;
+background:#f7f5ec;
+border:1px solid #d9d2b7;
             padding: 20px;
             border-radius: 10px;
             font-size: 14px;
@@ -85,13 +106,13 @@
             margin-top: 20px;
         }
 
-        .metric-card {
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 24px;
-            flex: 1;
-            box-shadow: 0 6px 16px rgba(0,0,0,0.05);
-        }
+       .metric-card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    flex: 1;
+    box-shadow:0 6px 18px rgba(0,0,0,0.12);
+}
 
         .metric-value {
             font-size: 36px;
@@ -226,6 +247,45 @@
         .email-error{
             color:#581f1f;
         }
+        .tabs{
+            display:flex;
+            flex-wrap:wrap;
+            gap:10px;
+            margin-bottom:20px;
+        }
+
+        .tab-btn{
+            background:#f2f4ef;
+            border:none;
+            padding:8px 14px;
+            border-radius:6px;
+            cursor:pointer;
+            font-size:14px;
+        }
+
+        .tab-btn.active{
+            background:#3f4f3c;
+            color:white;
+        }
+        .styled-dropdown{
+width:260px;
+padding:12px 14px;
+border-radius:8px;
+border:none;
+background:#55624f;
+color:white;
+font-size:15px;
+cursor:pointer;
+margin-bottom:20px;
+}
+
+.styled-dropdown:hover{
+background:#3f4b3a;
+}
+
+.styled-dropdown:focus{
+outline:none;
+}
     </style>
 
     <script>
@@ -315,11 +375,68 @@
             }
         }
 
+
+
+function showFrameworkCode(){
+
+const value = document.getElementById("frameworkSelect").value
+const codeBlock = document.getElementById("export-code")
+
+const snippets = {
+
+flask:`response.headers["Content-Security-Policy"] = "{{ csp_rule }}"`,
+
+django:`response["Content-Security-Policy"] = "{{ csp_rule }}"`,
+
+express:`app.use((req, res, next) => {
+res.setHeader("Content-Security-Policy", "{{ csp_rule }}");
+next();
+});`,
+
+spring:`response.setHeader("Content-Security-Policy", "{{ csp_rule }}");`,
+
+aspnet:`app.Use(async (context, next) =>
+{
+context.Response.Headers.Add("Content-Security-Policy", "{{ csp_rule }}");
+await next();
+});`
+
+}
+
+codeBlock.textContent = snippets[value] || ""
+
+document.getElementById("serverSelect").value = ""
+
+}
+
+
+function showServerCode(){
+
+const value = document.getElementById("serverSelect").value
+const codeBlock = document.getElementById("export-code")
+
+const snippets = {
+
+nginx:`add_header Content-Security-Policy "{{ csp_rule }}";`,
+
+apache:`Header set Content-Security-Policy "{{ csp_rule }}"`,
+
+caddy:`header Content-Security-Policy "{{ csp_rule }}"`
+
+}
+
+codeBlock.textContent = snippets[value] || ""
+
+document.getElementById("frameworkSelect").value = ""
+
+}
+
+
     </script>
 </head>
 
 <body>
-
+<canvas id="network-bg"></canvas>
 <div class="container">
 
     <h1>Scan Results</h1>
@@ -339,6 +456,19 @@
             </button>
 
             <pre id="csp-text" class="code-block">{{ csp_rule }}</pre>
+            {% if owasp_verified %}
+        <div style="
+        margin-top:12px;
+        padding:10px 14px;
+        background:#eef4e8;
+        border-radius:8px;
+        font-size:14px;
+        color:#3f4f3c;
+        font-weight:500;
+        ">
+        ✔ OWASP Security Guidelines Compliant
+    </div>
+{% endif %}
         </div>
     </div>
 
@@ -376,77 +506,48 @@
     </div>
 
     <!-- ================= EXPORT ================= -->
-    <div class="section">
-        <h2>Export CSP</h2>
+    <h2>Export CSP</h2>
+    
 
-        <div class="export-grid">
+<h3>Application Frameworks</h3>
 
-            <!-- NGINX -->
-            <div>
-                <h3>Nginx</h3>
-                <div class="code-container">
-                    <button class="copy-btn"
-                            onclick="copyToClipboard('nginx-csp', this)">
-                        Copy
-                    </button>
-                    <pre id="nginx-csp" class="code-block">
-# Optimized CSP as generated by SmartCSP
-add_header Content-Security-Policy "{{ csp_rule }}";
-                    </pre>
-                </div>
-            </div>
+<select id="frameworkSelect" onchange="showFrameworkCode()" class="styled-dropdown">
 
-            <!-- APACHE -->
-            <div>
-                <h3>Apache</h3>
-                <div class="code-container">
-                    <button class="copy-btn"
-                            onclick="copyToClipboard('apache-csp', this)">
-                        Copy
-                    </button>
-                    <pre id="apache-csp" class="code-block">
-# Optimized CSP as generated by SmartCSP
-Header set Content-Security-Policy "{{ csp_rule }}"
-                    </pre>
-                </div>
-            </div>
+<option value="">Select Framework</option>
+<option value="flask">Flask</option>
+<option value="django">Django</option>
+<option value="express">Express.js</option>
+<option value="spring">Spring Boot</option>
+<option value="aspnet">ASP.NET Core</option>
 
-            <!-- FLASK -->
-            <div>
-                <h3>Flask (Python)</h3>
-                <div class="code-container">
-                    <button class="copy-btn"
-                            onclick="copyToClipboard('flask-csp', this)">
-                        Copy
-                    </button>
-                    <pre id="flask-csp" class="code-block">
-response.headers["Content-Security-Policy"] = "{{ csp_rule }}"
-                    </pre>
-                </div>
-            </div>
+</select>
 
-            <!-- NODE -->
-            <div>
-                <h3>Node.js (Express)</h3>
-                <div class="code-container">
-                    <button class="copy-btn"
-                            onclick="copyToClipboard('node-csp', this)">
-                        Copy
-                    </button>
-                    <pre id="node-csp" class="code-block">
-res.setHeader("Content-Security-Policy", "{{ csp_rule }}");
-                    </pre>
-                </div>
-            </div>
 
-        </div>
+<h3>Web Servers</h3>
 
-            
-        <p class="muted">
-            Refer to the full report for detailed deployment guidelines and best practices.
-        </p>
-    </div>
 
+<select id="serverSelect" onchange="showServerCode()" class="styled-dropdown">
+<option value="">Select Server</option>
+<option value="nginx">Nginx</option>
+<option value="apache">Apache</option>
+<option value="caddy">Caddy</option>
+
+</select>
+
+
+<div class="code-container">
+
+<button class="copy-btn"
+onclick="copyToClipboard('export-code', this)">
+Copy
+</button>
+
+<pre id="export-code" class="code-block"></pre>
+
+</div>
+
+
+      
     
     <!-- ================= NONCE ================= -->
 
@@ -536,7 +637,86 @@ res.setHeader("Content-Security-Policy", "{{ csp_rule }}");
 
 </div>
 </div>
+<script>
 
+const canvas = document.getElementById("network-bg")
+const ctx = canvas.getContext("2d")
+
+canvas.width = window.innerWidth
+canvas.height = window.innerHeight
+
+let nodes=[]
+
+for(let i=0;i<30;i++){
+nodes.push({
+x:Math.random()*canvas.width,
+y:Math.random()*canvas.height,
+vx:(Math.random()-0.5)*0.4,
+vy:(Math.random()-0.5)*0.4
+})
+}
+
+function draw(){
+
+ctx.clearRect(0,0,canvas.width,canvas.height)
+
+nodes.forEach(n=>{
+
+n.x+=n.vx
+n.y+=n.vy
+
+if(n.x<0||n.x>canvas.width) n.vx*=-1
+if(n.y<0||n.y>canvas.height) n.vy*=-1
+
+/* glow */
+
+const gradient = ctx.createRadialGradient(
+n.x,n.y,0,
+n.x,n.y,10
+)
+
+gradient.addColorStop(0,"rgba(85,98,79,0.9)")
+gradient.addColorStop(1,"rgba(85,98,79,0)")
+
+ctx.fillStyle = gradient
+ctx.beginPath()
+ctx.arc(n.x,n.y,10,0,Math.PI*2)
+ctx.fill()
+
+/* node core */
+
+ctx.beginPath()
+ctx.arc(n.x,n.y,2,0,Math.PI*2)
+ctx.fillStyle="#55624f"
+ctx.fill()
+
+nodes.forEach(m=>{
+
+let dist = Math.hypot(n.x-m.x,n.y-m.y)
+
+if(dist<140){
+
+ctx.beginPath()
+ctx.moveTo(n.x,n.y)
+ctx.lineTo(m.x,m.y)
+
+ctx.strokeStyle="rgba(63,75,58,0.25)"
+ctx.lineWidth=1
+ctx.stroke()
+
+}
+
+})
+
+})
+
+requestAnimationFrame(draw)
+
+}
+
+draw()
+
+</script>
 </body>
 </html>
 
