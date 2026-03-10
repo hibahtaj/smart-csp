@@ -234,7 +234,7 @@ def send_report_email():
 
         msg = MIMEMultipart("mixed")
 
-        msg["From"] = sender
+        msg["From"] = f"SmartCSP Security <{sender}>"
         msg["To"] = email
         msg["Subject"] = "SmartCSP Security Report for " + LATEST_SCAN["url"]
 
