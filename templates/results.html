@@ -72,8 +72,8 @@ border-top:1px solid #d6cfb3;
         }
 
         pre.code-block {
-background:#f7f5ec;
-border:1px solid #d9d2b7;
+            background:#f7f5ec;
+            border:1px solid #d9d2b7;
             padding: 20px;
             border-radius: 10px;
             font-size: 14px;
@@ -107,12 +107,12 @@ border:1px solid #d9d2b7;
         }
 
        .metric-card {
-    background: white;
-    border-radius: 12px;
-    padding: 24px;
-    flex: 1;
-    box-shadow:0 6px 18px rgba(0,0,0,0.12);
-}
+            background:#f7f5ec;
+            border-radius: 12px;
+            padding: 24px;
+            flex: 1;
+            box-shadow:0 6px 18px rgba(0,0,0,0.12);
+        }
 
         .metric-value {
             font-size: 36px;
@@ -132,6 +132,35 @@ border:1px solid #d9d2b7;
             grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
             gap: 30px;
         }
+        /*NAV BAR*/
+        nav {
+                display: flex;
+                justify-content: space-between;
+                position: sticky;
+                z-index: 1000;
+                top: 0;
+                align-items: center;
+                padding: 20px 70px;
+                background: rgb(230, 223, 200);
+                box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            nav img {
+                height: 48px;
+            }
+
+            nav a {
+                color: #2e3b2d;
+                text-decoration: none;
+                margin-left: 25px;
+                font-weight: 500;
+                font-size: 15px;
+            }
+
+            nav a:hover {
+                opacity: 0.8;
+            }
+        
 
         /* ---------- ACTION BUTTONS ---------- */
         .actions {
@@ -210,6 +239,8 @@ width:240px;
             border-radius: 12px;
             padding: 30px;
 
+            position:relative;
+
             box-shadow: 0 10px 30px rgba(0,0,0,0.08);
 
             text-align: center;
@@ -224,6 +255,23 @@ width:240px;
             color: #777;
             font-size: 14px;
             margin-bottom: 20px;
+        }
+
+        .modal-close{
+            position:absolute;
+            top:10px;
+            right:14px;
+
+            background:none;
+            border:none;
+
+            font-size:20px;
+            cursor:pointer;
+            color:#777;
+        }
+
+        .modal-close:hover{
+            color:#333;
         }
 
         .modal-input {
@@ -343,7 +391,7 @@ outline:none;
 
             if(!name || !emailPattern.test(email)){
                 messageBox.innerHTML =
-                "<span class='email-error'>Please enter a valid name and email.</span>"
+                    "<span class='email-error'>" + data.message + "</span>";
                 return
             }
 
@@ -378,7 +426,7 @@ outline:none;
             .catch((err) => {
 
                 messageBox.innerHTML =
-                `<span class='email-error'>${err.message}</span>`
+                "<span class='email-error'>" + err.message + "</span>";
 
             })
 
@@ -452,6 +500,19 @@ document.getElementById("frameworkSelect").value = ""
 </head>
 
 <body>
+    <nav>
+
+<a href="/">
+<img src="{{ url_for('static', filename='logo.png') }}" alt="SmartCSP Logo">
+</a>
+
+<div>
+<a href="/#generate">Generate CSP</a>
+<a href="/#csp">What is CSP</a>
+<a href="/#features">Features</a>
+</div>
+
+</nav>
 <canvas id="network-bg"></canvas>
 <div class="container">
 
@@ -617,7 +678,7 @@ Copy
     <div id="emailModal" class="modal">
 
         <div class="modal-card">
-
+            <button class="modal-close" onclick="closeModal()">&#215;</button>
             <h3>Email Security Report</h3>
 
             <p class="modal-subtext">
