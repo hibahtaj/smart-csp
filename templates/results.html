@@ -173,6 +173,22 @@ border:1px solid #d9d2b7;
             cursor: pointer;
         }
 
+.dropdown-row{
+display:flex;
+gap:60px;
+margin-top:10px;
+margin-bottom:30px;
+}
+
+.dropdown-group{
+display:flex;
+flex-direction:column;
+gap:8px;
+}
+.styled-dropdown{
+width:240px;
+}
+
         /* ---------- MAIL BUTTON ---------- */
         .modal {
             display: none;
@@ -509,30 +525,33 @@ document.getElementById("frameworkSelect").value = ""
     <h2>Export CSP</h2>
     
 
+<div class="dropdown-row">
+
+<div class="dropdown-group">
 <h3>Application Frameworks</h3>
-
 <select id="frameworkSelect" onchange="showFrameworkCode()" class="styled-dropdown">
-
 <option value="">Select Framework</option>
 <option value="flask">Flask</option>
 <option value="django">Django</option>
 <option value="express">Express.js</option>
 <option value="spring">Spring Boot</option>
 <option value="aspnet">ASP.NET Core</option>
-
 </select>
+</div>
 
-
+<div class="dropdown-group">
 <h3>Web Servers</h3>
-
-
 <select id="serverSelect" onchange="showServerCode()" class="styled-dropdown">
 <option value="">Select Server</option>
 <option value="nginx">Nginx</option>
 <option value="apache">Apache</option>
 <option value="caddy">Caddy</option>
-
 </select>
+</div>
+
+</div>
+
+
 
 
 <div class="code-container">
