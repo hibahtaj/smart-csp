@@ -401,7 +401,7 @@ outline:none;
             formData.append("name", name)
             formData.append("email", email)
 
-            fetch("/send-report-email", {
+            fetch("/send-report-email/{{ scan_id }}", {
                 method: "POST",
                 body: formData
             })
@@ -666,7 +666,7 @@ Copy
         </p>
 
         <div class="actions">
-            <a href="/report/preview" target="_blank">
+            <a href="/report/preview/{{ scan_id }}" target="_blank">
                 <button class="primary-btn">Preview Report</button>
             </a>
             <a> 

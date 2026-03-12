@@ -26,17 +26,19 @@ from utils.charts import (
     generate_test_results,
     generate_security_radar
 )
+import uuid
+import json
 
 app = Flask(__name__)
 
-# TEMPORARY in-memory storage (OK for now)
-LATEST_SCAN = {}
+SCAN_DIR = "scans"
+os.makedirs(SCAN_DIR, exist_ok=True)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
         url = request.form.get('website_url')
-
+        driver = None
         try:
             # Selenium headless browser setup
             options = Options()
@@ -71,9 +73,6 @@ def index():
                     for o in driver.find_elements("tag name", "object")
                     if o.get_attribute('data')]
 
-
-            driver.quit()
-
             # Generate clean CSP header
             csp_rule = generate_csp(scripts, images, css_files, fonts)
 
@@ -96,8 +95,10 @@ def index():
             CHART_DIR = os.path.join(BASE_DIR, "static", "charts")
 
             # ---- STORE DATA FOR REPORT ----
-            LATEST_SCAN.clear()
-            LATEST_SCAN.update({
+
+            scan_id = str(uuid.uuid4().hex[:8])
+
+            scan_data = {
                 "url": url,
                 "scripts": scripts,
                 "images": images,
@@ -112,91 +113,106 @@ def index():
                 "readability_score": readability_score,
                 "block_summary": block_summary,
                 "scan_date": datetime.now().strftime("%Y-%m-%d %H:%M")
-            })
+            }
 
+            scan_path = os.path.join(SCAN_DIR, f"{scan_id}.json")
 
-            return redirect(url_for("results"))
+            with open(scan_path, "w") as f:
+                json.dump(scan_data, f)
+
+            return redirect(url_for("results", scan_id=scan_id))
 
         except Exception as e:
             return f"Error fetching website: {e}"
+        
+        finally:
+            if driver:
+                driver.quit()
 
     return render_template('index.html')
 
-@app.route("/results")
-def results():
-    if not LATEST_SCAN:
+@app.route("/results/<scan_id>")
+def results(scan_id):
+
+    scan_path = os.path.join(SCAN_DIR, f"{scan_id}.json")
+
+    if not os.path.exists(scan_path):
         return redirect(url_for("index"))
 
-    return render_template(
-        "results.html",
-        url=LATEST_SCAN["url"],
-        csp_rule=LATEST_SCAN["csp_rule"],
-        strength_score=LATEST_SCAN["strength_score"],
-        readability_score=LATEST_SCAN["readability_score"],
-        block_summary=LATEST_SCAN["block_summary"],
-        csp_explanations=LATEST_SCAN["csp_explanations"],
-        resource_analysis=LATEST_SCAN["resource_analysis"]
-    )
+    with open(scan_path) as f:
+        scan = json.load(f)
 
-@app.route("/report/preview")
-def report_preview():
-    if not LATEST_SCAN:
+    return render_template("results.html", **scan, scan_id=scan_id)
+
+@app.route("/report/preview/<scan_id>")
+def report_preview(scan_id):
+
+    scan_path = os.path.join(SCAN_DIR, f"{scan_id}.json")
+
+    if not os.path.exists(scan_path):
         return redirect(url_for("index"))
 
+    with open(scan_path) as f:
+        scan = json.load(f)
+    
+    PDF_PATH = os.path.join(SCAN_DIR, f"{scan_id}.pdf")
     BASE_DIR = os.path.abspath(os.getcwd())
     CHART_DIR = os.path.join(BASE_DIR, "static", "charts")
-    PDF_PATH = os.path.join(BASE_DIR, "static", "smartcsp_report.pdf")
 
-    generate_strength_donut(LATEST_SCAN["strength_score"], CHART_DIR)
+    generate_strength_donut(scan["strength_score"], CHART_DIR)
     generate_resource_breakdown(
-        LATEST_SCAN["scripts"],
-        LATEST_SCAN["images"],
-        LATEST_SCAN["css_files"],
-        LATEST_SCAN["fonts"],
+        scan["scripts"],
+        scan["images"],
+        scan["css_files"],
+        scan["fonts"],
         CHART_DIR
     )
     generate_test_results(
-        len(LATEST_SCAN["scripts"]) +
-        len(LATEST_SCAN["images"]) +
-        len(LATEST_SCAN["css_files"]) +
-        len(LATEST_SCAN["fonts"]),
-        len(LATEST_SCAN["blocked_resources"]),
+        len(scan["scripts"]) +
+        len(scan["images"]) +
+        len(scan["css_files"]) +
+        len(scan["fonts"]),
+        len(scan["blocked_resources"]),
         CHART_DIR
     )
-    generate_security_radar(LATEST_SCAN["csp_rule"], CHART_DIR)
+    generate_security_radar(scan["csp_rule"], CHART_DIR)
 
 
     html_content = render_template(
         "report.html",
         base_path=BASE_DIR,
 
-        url=LATEST_SCAN["url"],
-        scan_date=LATEST_SCAN["scan_date"],
-        csp_rule=LATEST_SCAN["csp_rule"],
+        url=scan["url"],
+        scan_date=scan["scan_date"],
+        csp_rule=scan["csp_rule"],
 
-        scripts=LATEST_SCAN["scripts"],
-        images=LATEST_SCAN["images"],
-        css_files=LATEST_SCAN["css_files"],
-        fonts=LATEST_SCAN["fonts"],
-        blocked_resources=LATEST_SCAN["blocked_resources"],
+        scripts=scan["scripts"],
+        images=scan["images"],
+        css_files=scan["css_files"],
+        fonts=scan["fonts"],
+        blocked_resources=scan["blocked_resources"],
 
-        strength_score=LATEST_SCAN["strength_score"],
-        baseline_score=LATEST_SCAN["baseline_score"],
-        readability_score=LATEST_SCAN["readability_score"],
+        strength_score=scan["strength_score"],
+        baseline_score=scan["baseline_score"],
+        readability_score=scan["readability_score"],
 
-        csp_explanations=LATEST_SCAN["csp_explanations"],
-        resource_analysis=LATEST_SCAN["resource_analysis"]
+        csp_explanations=scan["csp_explanations"],
+        resource_analysis=scan["resource_analysis"]
     )
 
     HTML(string=html_content, base_url=BASE_DIR).write_pdf(PDF_PATH)
 
     return send_file(PDF_PATH, mimetype="application/pdf")
 
-@app.route("/send-report-email", methods=["POST"])
-def send_report_email():
+@app.route("/send-report-email/<scan_id>", methods=["POST"])
+def send_report_email(scan_id):
+    scan_path = os.path.join(SCAN_DIR, f"{scan_id}.json")
 
-    if not LATEST_SCAN:
-        return {"status": "error", "message": "No scan data available"}, 400
+    if not os.path.exists(scan_path):
+        return {"status": "error", "message": "Scan not found"}, 404
+
+    with open(scan_path) as f:
+        scan = json.load(f)
 
     name = request.form.get("name")
     email = request.form.get("email")
@@ -223,7 +239,7 @@ def send_report_email():
             html_content = render_template(
                 "report.html",
                 base_path=BASE_DIR,
-                **LATEST_SCAN
+                **scan
             )
 
             HTML(string=html_content, base_url=BASE_DIR).write_pdf(PDF_PATH)
@@ -236,15 +252,15 @@ def send_report_email():
 
         msg["From"] = f"SmartCSP Security <{sender}>"
         msg["To"] = email
-        msg["Subject"] = "SmartCSP Security Report for " + LATEST_SCAN["url"]
+        msg["Subject"] = "SmartCSP Security Report for " + scan["url"]
 
         # ---- HTML EMAIL TEMPLATE ----
         email_html = render_template(
             "email_template.html",
             name=name,
-            website=LATEST_SCAN["url"],
-            scan_time=LATEST_SCAN["scan_date"],
-            csp_rule=LATEST_SCAN["csp_rule"]
+            website=scan["url"],
+            scan_time=scan["scan_date"],
+            csp_rule=scan["csp_rule"]
         )
 
         msg.attach(MIMEText(email_html, "html"))
