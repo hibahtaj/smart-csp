@@ -1,15 +1,7 @@
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
 
-def test_csp(url, csp_rule):
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--disable-gpu")
-
-    service = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=service, options=chrome_options)
+def test_csp(driver, url, csp_rule):
 
     driver.execute_cdp_cmd(
         "Network.setExtraHTTPHeaders",
@@ -23,13 +15,12 @@ def test_csp(url, csp_rule):
     try:
         logs = driver.get_log('browser')
         for entry in logs:
-            if "CSP" in entry['message']:
+            if "CSP" in entry['message'] or "Content Security Policy" in entry["message"]:
                 blocked_resources.append(entry['message'])
     except Exception:
         # Logs may not be available
         pass
-
-    driver.quit()
+    
     return blocked_resources
 
 # Example usage for testing independently

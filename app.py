@@ -8,6 +8,7 @@ from csp_generator.generate_csp import generate_csp
 from sandbox.test_csp import test_csp
 from datetime import datetime
 import os
+import traceback
 from weasyprint import HTML
 import base64
 from email_validator import validate_email, EmailNotValidError
@@ -42,42 +43,85 @@ def index():
         try:
             # Selenium headless browser setup
             options = Options()
-            options.add_argument("--headless")
+            options.add_argument("--headless=new")
+            options.add_argument("--no-sandbox")
+            options.add_argument("--disable-dev-shm-usage")
             options.add_argument("--disable-gpu")
-            service = Service(ChromeDriverManager().install())
-            driver = webdriver.Chrome(service=service, options=options)
+            options.page_load_strategy = "eager"
+
+            prefs = {
+                "profile.managed_default_content_settings.images": 2
+            }
+            options.add_experimental_option("prefs", prefs)
+
+            driver = webdriver.Chrome(options=options)
+
+            driver.set_page_load_timeout(15)
+
+            driver = webdriver.Chrome(options=options)
+
             driver.get(url)
 
             # Scripts
-            scripts = [urljoin(driver.current_url, s.get_attribute('src'))
-                       for s in driver.find_elements("tag name", "script")
-                       if s.get_attribute('src')]
+            scripts = []
+
+            for s in driver.find_elements("tag name", "script"):
+                try:
+                    src = s.get_attribute("src")
+                    if src:
+                        scripts.append(urljoin(driver.current_url, src))
+                except:
+                    pass
 
             # Images
-            images = [urljoin(driver.current_url, i.get_attribute('src'))
-                      for i in driver.find_elements("tag name", "img")
-                      if i.get_attribute('src')]
+            images = []
+
+            for i in driver.find_elements("tag name", "img"):
+                try:
+                    src = i.get_attribute("src")
+                    if src:
+                        images.append(urljoin(driver.current_url, src))
+                except:
+                    pass
 
             # CSS files
-            css_files = [urljoin(driver.current_url, c.get_attribute('href'))
-                         for c in driver.find_elements("tag name", "link")
-                         if c.get_attribute('rel') == 'stylesheet' and c.get_attribute('href')]
+            css_files = []
+
+            for c in driver.find_elements("tag name", "link"):
+                try:
+                    rel = c.get_attribute("rel")
+                    href = c.get_attribute("href")
+                    if rel == "stylesheet" and href:
+                        css_files.append(urljoin(driver.current_url, href))
+                except:
+                    pass
 
             # Fonts
-            fonts = [urljoin(driver.current_url, f.get_attribute('href'))
-                     for f in driver.find_elements("tag name", "link")
-                     if f.get_attribute('href') and 'font' in f.get_attribute('href')]
+            fonts = []
+
+            for f in driver.find_elements("tag name", "link"):
+                try:
+                    href = f.get_attribute("href")
+                    if href and "font" in href:
+                        fonts.append(urljoin(driver.current_url, href))
+                except:
+                    pass
 
             # Objects 
-            objects = [urljoin(driver.current_url, o.get_attribute('data'))
-                    for o in driver.find_elements("tag name", "object")
-                    if o.get_attribute('data')]
+            objects = []
+            for o in driver.find_elements("tag name", "object"):
+                try:
+                    obj = o.get_attribute("data")
+                    if obj:
+                        objects.append(urljoin(driver.current_url, obj))
+                except:
+                    pass
 
             # Generate clean CSP header
             csp_rule = generate_csp(scripts, images, css_files, fonts)
 
             # ---- AFTER sandbox test ----
-            blocked_resources = test_csp(url, csp_rule)
+            blocked_resources = test_csp(driver, url, csp_rule)
 
             # ---- METRICS ----
             smart_score = compute_strength_score(csp_rule)
@@ -123,7 +167,8 @@ def index():
             return redirect(url_for("results", scan_id=scan_id))
 
         except Exception as e:
-            return f"Error fetching website: {e}"
+            traceback.print_exc()
+            return f"Error fetching website: {str(e)}"
         
         finally:
             if driver:
@@ -293,4 +338,4 @@ def send_report_email(scan_id):
 
 
 if __name__ == "__main__":
-    app.run(debug=True, use_reloader=False, port=5000)
+    app.run(host='0.0.0.0', port=5000)
