@@ -183,3 +183,60 @@ def generate_advanced_resource_analysis(
             "resources": fonts
         }
     return analysis
+
+def check_owasp_compliance(csp_rule):
+
+    checks = {
+        "no_unsafe_inline": "unsafe-inline" not in csp_rule,
+        "no_unsafe_eval": "unsafe-eval" not in csp_rule,
+        "no_wildcard": "*" not in csp_rule,
+        "object_src_none": "object-src 'none'" in csp_rule,
+        "has_script_src": "script-src" in csp_rule
+    }
+
+    return all(checks.values())
+
+def check_w3c_compliance(csp_rule):
+
+    valid_directives = [
+        "default-src",
+        "script-src",
+        "style-src",
+        "img-src",
+        "font-src",
+        "connect-src",
+        "media-src",
+        "object-src",
+        "frame-src",
+        "worker-src",
+        "manifest-src",
+        "prefetch-src",
+        "form-action",
+        "base-uri",
+        "frame-ancestors"
+    ]
+
+    directives = [d.strip().split()[0] for d in csp_rule.split(";") if d.strip()]
+
+    checks = {
+        "has_valid_directives": all(d in valid_directives for d in directives),
+        "directives_separated_by_semicolon": ";" in csp_rule,
+        "has_source_values": any("'" in csp_rule or "http" in csp_rule for _ in directives),
+        "object_src_defined": "object-src" in csp_rule
+    }
+
+    return all(checks.values())
+
+def check_google_csp(csp_rule):
+
+    checks = {
+        "no_unsafe_inline": "unsafe-inline" not in csp_rule,
+        "no_unsafe_eval": "unsafe-eval" not in csp_rule,
+        "no_wildcards": "*" not in csp_rule,
+        "has_script_src": "script-src" in csp_rule,
+        "has_object_none": "object-src 'none'" in csp_rule,
+        "no_data_script": "data:" not in csp_rule,
+        "no_http_sources": "http://" not in csp_rule
+    }
+
+    return all(checks.values())

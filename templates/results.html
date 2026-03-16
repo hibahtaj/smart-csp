@@ -133,7 +133,7 @@ border-top:1px solid #d6cfb3;
             gap: 30px;
         }
         /*NAV BAR*/
-        nav {
+            nav {
                 display: flex;
                 justify-content: space-between;
                 position: sticky;
@@ -202,21 +202,21 @@ border-top:1px solid #d6cfb3;
             cursor: pointer;
         }
 
-.dropdown-row{
-display:flex;
-gap:60px;
-margin-top:10px;
-margin-bottom:30px;
-}
+        .dropdown-row{
+        display:flex;
+        gap:60px;
+        margin-top:10px;
+        margin-bottom:30px;
+        }
 
-.dropdown-group{
-display:flex;
-flex-direction:column;
-gap:8px;
-}
-.styled-dropdown{
-width:240px;
-}
+        .dropdown-group{
+        display:flex;
+        flex-direction:column;
+        gap:8px;
+        }
+        .styled-dropdown{
+        width:240px;
+        }
 
         /* ---------- MAIL BUTTON ---------- */
         .modal {
@@ -332,24 +332,33 @@ width:240px;
             color:white;
         }
         .styled-dropdown{
-width:260px;
-padding:12px 14px;
-border-radius:8px;
-border:none;
-background:#55624f;
-color:white;
-font-size:15px;
-cursor:pointer;
-margin-bottom:20px;
-}
+            width:260px;
+            padding:12px 14px;
+            border-radius:8px;
+            border:none;
+            background:#55624f;
+            color:white;
+            font-size:15px;
+            cursor:pointer;
+            margin-bottom:20px;
+        }
 
-.styled-dropdown:hover{
-background:#3f4b3a;
-}
+        .styled-dropdown:hover{
+        background:#3f4b3a;
+        }
 
-.styled-dropdown:focus{
-outline:none;
-}
+        .styled-dropdown:focus{
+        outline:none;
+        }
+        .standard-verifier{
+            margin-top:12px;
+            padding:10px 14px;
+            background:#eef4e8;
+            border-radius:8px;
+            font-size:14px;
+            color:#3f4f3c;
+            font-weight:500;
+        }
     </style>
 
     <script>
@@ -439,61 +448,62 @@ outline:none;
             }
         }
 
+    function getCSP(){
+        return document.getElementById("csp-text").textContent.trim();
+    }
 
+    function showFrameworkCode(){
 
-function showFrameworkCode(){
+        const value = document.getElementById("frameworkSelect").value;
+        const codeBlock = document.getElementById("export-code");
+        const csp = getCSP();
 
-const value = document.getElementById("frameworkSelect").value
-const codeBlock = document.getElementById("export-code")
+        const snippets = {
 
-const snippets = {
+            flask: `response.headers["Content-Security-Policy"] = "${csp}"`,
 
-flask:`response.headers["Content-Security-Policy"] = "{{ csp_rule }}"`,
+            django: `response["Content-Security-Policy"] = "${csp}"`,
 
-django:`response["Content-Security-Policy"] = "{{ csp_rule }}"`,
+            express: `app.use((req, res, next) => {
+    res.setHeader("Content-Security-Policy", "${csp}");
+    next();
+    });`,
 
-express:`app.use((req, res, next) => {
-res.setHeader("Content-Security-Policy", "{{ csp_rule }}");
-next();
-});`,
+            spring: `response.setHeader("Content-Security-Policy", "${csp}");`,
 
-spring:`response.setHeader("Content-Security-Policy", "{{ csp_rule }}");`,
+            aspnet: `app.Use(async (context, next) =>
+    {
+    context.Response.Headers.Add("Content-Security-Policy", "${csp}");
+    await next();
+    });`
 
-aspnet:`app.Use(async (context, next) =>
-{
-context.Response.Headers.Add("Content-Security-Policy", "{{ csp_rule }}");
-await next();
-});`
+        };
 
-}
+        codeBlock.textContent = snippets[value] || "";
 
-codeBlock.textContent = snippets[value] || ""
+        document.getElementById("serverSelect").value = "";
+    }
 
-document.getElementById("serverSelect").value = ""
+    function showServerCode(){
 
-}
+        const value = document.getElementById("serverSelect").value;
+        const codeBlock = document.getElementById("export-code");
+        const csp = getCSP();
 
+        const snippets = {
 
-function showServerCode(){
+            nginx: `add_header Content-Security-Policy "${csp}";`,
 
-const value = document.getElementById("serverSelect").value
-const codeBlock = document.getElementById("export-code")
+            apache: `Header set Content-Security-Policy "${csp}"`,
 
-const snippets = {
+            caddy: `header Content-Security-Policy "${csp}"`
 
-nginx:`add_header Content-Security-Policy "{{ csp_rule }}";`,
+        };
 
-apache:`Header set Content-Security-Policy "{{ csp_rule }}"`,
+        codeBlock.textContent = snippets[value] || "";
 
-caddy:`header Content-Security-Policy "{{ csp_rule }}"`
-
-}
-
-codeBlock.textContent = snippets[value] || ""
-
-document.getElementById("frameworkSelect").value = ""
-
-}
+        document.getElementById("frameworkSelect").value = "";
+    }
 
 
     </script>
@@ -533,19 +543,21 @@ document.getElementById("frameworkSelect").value = ""
             </button>
 
             <pre id="csp-text" class="code-block">{{ csp_rule }}</pre>
-            {% if owasp_verified %}
-        <div style="
-        margin-top:12px;
-        padding:10px 14px;
-        background:#eef4e8;
-        border-radius:8px;
-        font-size:14px;
-        color:#3f4f3c;
-        font-weight:500;
-        ">
-        ✔ OWASP Security Guidelines Compliant
-    </div>
-{% endif %}
+        {% if owasp_verified %}
+            <div class="standard-verifier">
+            ✔ OWASP Security Guidelines Compliant
+            </div>
+        {% endif %}
+        {% if w3c_verified %}
+            <div class="standard-verifier">
+            ✔ W3C Security Guidelines Compliant
+            </div>
+        {% endif %}
+        {% if google_verified %}
+            <div class="standard-verifier">
+            ✔ Google CSP Security Guidelines Compliant
+            </div>
+        {% endif %}
         </div>
     </div>
 

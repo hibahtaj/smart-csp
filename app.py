@@ -19,7 +19,7 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 
-from utils.scoring import compute_strength_score, compute_baseline_score, compute_readability_score, generate_advanced_resource_analysis, generate_block_summary, generate_csp_explanations
+from utils.scoring import compute_strength_score, compute_baseline_score, compute_readability_score, generate_advanced_resource_analysis, generate_block_summary, generate_csp_explanations, check_owasp_compliance, check_google_csp, check_w3c_compliance
 from utils.charts import (
     generate_strength_donut,
     generate_strength_comparison,
@@ -133,6 +133,9 @@ def index():
 )
             csp_explanations = generate_csp_explanations(csp_rule)
 
+            owasp_verified = check_owasp_compliance(csp_rule)
+            w3c_verified = check_w3c_compliance(csp_rule)
+            google_verified = check_google_csp(csp_rule)
 
 
             BASE_DIR = os.path.abspath(os.getcwd())
@@ -156,7 +159,10 @@ def index():
                 "csp_explanations": csp_explanations,
                 "readability_score": readability_score,
                 "block_summary": block_summary,
-                "scan_date": datetime.now().strftime("%Y-%m-%d %H:%M")
+                "scan_date": datetime.now().strftime("%Y-%m-%d %H:%M"),
+                "owasp_verified": owasp_verified,
+                "w3c_verified": w3c_verified,
+                "google_verified": google_verified
             }
 
             scan_path = os.path.join(SCAN_DIR, f"{scan_id}.json")
