@@ -164,6 +164,7 @@ def index():
 
             scan_data = {
                 "url": url,
+                "scan_id": scan_id,
                 "scripts": scripts,
                 "images": images,
                 "css_files": css_files,
