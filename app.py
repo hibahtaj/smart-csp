@@ -13,6 +13,8 @@ from weasyprint import HTML
 import base64
 from email_validator import validate_email, EmailNotValidError
 
+from urllib.parse import urljoin
+
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -29,96 +31,100 @@ from utils.charts import (
 )
 import uuid
 import json
+import hashlib
 
 app = Flask(__name__)
 
 SCAN_DIR = "scans"
 os.makedirs(SCAN_DIR, exist_ok=True)
 
+def get_cache_filename(url):
+    return os.path.join(SCAN_DIR, hashlib.md5(url.encode()).hexdigest() + ".json")
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    
     if request.method == 'POST':
         url = request.form.get('website_url')
+        cache_file = get_cache_filename(url)
+
+        if os.path.exists(cache_file):
+            print("Using cached result")
+            with open(cache_file, "r") as f:
+                cached_data = json.load(f)
+            return render_template("results.html", data=cached_data)
         driver = None
         try:
             # Selenium headless browser setup
+
             options = Options()
+
             options.add_argument("--headless=new")
             options.add_argument("--no-sandbox")
             options.add_argument("--disable-dev-shm-usage")
             options.add_argument("--disable-gpu")
+
+            # performance flags
+            options.add_argument("--disable-extensions")
+            options.add_argument("--disable-infobars")
+            options.add_argument("--disable-notifications")
+            options.add_argument("--disable-popup-blocking")
+            options.add_argument("--disable-background-networking")
+            options.add_argument("--disable-sync")
+            options.add_argument("--metrics-recording-only")
+            options.add_argument("--no-first-run")
+
             options.page_load_strategy = "eager"
 
+            # disable images (IMPORTANT)
             prefs = {
                 "profile.managed_default_content_settings.images": 2
             }
             options.add_experimental_option("prefs", prefs)
 
+
             driver = webdriver.Chrome(options=options)
 
             driver.set_page_load_timeout(15)
 
-            driver = webdriver.Chrome(options=options)
-
             driver.get(url)
 
-            # Scripts
-            scripts = []
+            driver.implicitly_wait(2)
 
-            for s in driver.find_elements("tag name", "script"):
-                try:
-                    src = s.get_attribute("src")
-                    if src:
-                        scripts.append(urljoin(driver.current_url, src))
-                except:
-                    pass
+            resources = driver.execute_script("""
+            let getAbsolute = (url) => {
+                try { return new URL(url, document.baseURI).href; }
+                catch { return null; }
+            };
 
-            # Images
-            images = []
+            return {
+                scripts: Array.from(document.querySelectorAll('script[src]'))
+                    .map(s => getAbsolute(s.src)).filter(Boolean),
 
-            for i in driver.find_elements("tag name", "img"):
-                try:
-                    src = i.get_attribute("src")
-                    if src:
-                        images.append(urljoin(driver.current_url, src))
-                except:
-                    pass
+                images: Array.from(document.querySelectorAll('img[src]'))
+                    .map(i => getAbsolute(i.src)).filter(Boolean),
 
-            # CSS files
-            css_files = []
+                css: Array.from(document.querySelectorAll('link[rel="stylesheet"][href]'))
+                    .map(l => getAbsolute(l.href)).filter(Boolean),
 
-            for c in driver.find_elements("tag name", "link"):
-                try:
-                    rel = c.get_attribute("rel")
-                    href = c.get_attribute("href")
-                    if rel == "stylesheet" and href:
-                        css_files.append(urljoin(driver.current_url, href))
-                except:
-                    pass
+                fonts: Array.from(document.querySelectorAll('link[href]'))
+                    .map(l => l.href)
+                    .filter(h => h && h.toLowerCase().includes("font"))
+                    .map(h => getAbsolute(h)).filter(Boolean),
 
-            # Fonts
-            fonts = []
+                objects: Array.from(document.querySelectorAll('object[data]'))
+                    .map(o => getAbsolute(o.data)).filter(Boolean)
+            };
+            """)
 
-            for f in driver.find_elements("tag name", "link"):
-                try:
-                    href = f.get_attribute("href")
-                    if href and "font" in href:
-                        fonts.append(urljoin(driver.current_url, href))
-                except:
-                    pass
-
-            # Objects 
-            objects = []
-            for o in driver.find_elements("tag name", "object"):
-                try:
-                    obj = o.get_attribute("data")
-                    if obj:
-                        objects.append(urljoin(driver.current_url, obj))
-                except:
-                    pass
+            scripts = resources["scripts"]
+            images = resources["images"]
+            css_files = resources["css"]
+            fonts = resources["fonts"]
+            objects = resources["objects"]
 
             # Generate clean CSP header
-            csp_rule = generate_csp(scripts, images, css_files, fonts)
+            csp_rule = generate_csp(scripts, images, css_files, fonts, objects)
 
             # ---- AFTER sandbox test ----
             blocked_resources = test_csp(driver, url, csp_rule)
@@ -136,10 +142,6 @@ def index():
             owasp_verified = check_owasp_compliance(csp_rule)
             w3c_verified = check_w3c_compliance(csp_rule)
             google_verified = check_google_csp(csp_rule)
-
-
-            BASE_DIR = os.path.abspath(os.getcwd())
-            CHART_DIR = os.path.join(BASE_DIR, "static", "charts")
 
             # ---- STORE DATA FOR REPORT ----
 
@@ -165,12 +167,10 @@ def index():
                 "google_verified": google_verified
             }
 
-            scan_path = os.path.join(SCAN_DIR, f"{scan_id}.json")
+            with open(cache_file, "w") as f:
+                json.dump(scan_data, f, indent=2)
 
-            with open(scan_path, "w") as f:
-                json.dump(scan_data, f)
-
-            return redirect(url_for("results", scan_id=scan_id))
+            return render_template("results.html", data=scan_data)
 
         except Exception as e:
             traceback.print_exc()
