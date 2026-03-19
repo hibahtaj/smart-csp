@@ -32,6 +32,7 @@ from utils.charts import (
 import uuid
 import json
 import hashlib
+import time
 
 app = Flask(__name__)
 
@@ -51,17 +52,21 @@ def get_cache_filename(url):
 def index():
     if request.method == 'POST':
         url = request.form.get('website_url')
+        url = url.strip().lower().rstrip("/")
 
         cache_file = get_cache_filename(url)
 
         if os.path.exists(cache_file):
+            print("CACHE HIT")
             with open(cache_file, "r") as f:
                 cached_data = json.load(f)
-            scan_id = uuid.uuid64().hex[:8]
+            scan_id = uuid.uuid4().hex[:8]
             scan_path = os.path.join(SCAN_DIR, f"{scan_id}.json")
             
             with open(scan_path, "w") as f:
                 json.dump(cached_data, f, indent=2)
+
+            time.sleep(15)
             
             return redirect(url_for("results", scan_id=scan_id))
         

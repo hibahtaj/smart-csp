@@ -411,7 +411,7 @@
             formData.append("name", name)
             formData.append("email", email)
 
-            fetch("/send-report-email/{{ scan_id }}", {
+            fetch("/send-report-email/{{ data.scan_id }}", {
                 method: "POST",
                 body: formData
             })
@@ -529,7 +529,7 @@
 
     <h1>Scan Results</h1>
     <p>
-        SmartCSP analyzed <strong>{{ url }}</strong> and generated a tailored
+        SmartCSP analyzed <strong>{{ data.url }}</strong> and generated a tailored
         Content Security Policy based on observed runtime behavior.
     </p>
 
@@ -543,7 +543,7 @@
                 Copy CSP
             </button>
 
-            <pre id="csp-text" class="code-block">{{ csp_rule }}</pre>
+            <pre id="csp-text" class="code-block">{{ data.csp_rule }}</pre>
         {% if owasp_verified %}
             <div class="standard-verifier">
             ✔ OWASP Security Guidelines Compliant
@@ -568,12 +568,12 @@
 
         <div class="metrics">
             <div class="metric-card">
-                <div class="metric-value">{{ strength_score }}/100</div>
+                <div class="metric-value">{{ data.strength_score }}/100</div>
                 <div class="metric-label">CSP Strength Score</div>
             </div>
 
             <div class="metric-card">
-                <div class="metric-value">{{ readability_score }}/100</div>
+                <div class="metric-value">{{ data.readability_score }}/100</div>
                 <div class="metric-label">CSP Readability Score</div>
             </div>
         </div>
@@ -679,7 +679,7 @@ Copy
         </p>
 
         <div class="actions">
-            <a href="/report/preview/{{ scan_id }}" target="_blank">
+            <a href="/report/preview/{{ data.scan_id }}" target="_blank">
                 <button class="primary-btn">Preview Report</button>
             </a>
             <a> 
