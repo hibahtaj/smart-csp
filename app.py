@@ -36,23 +36,35 @@ import hashlib
 app = Flask(__name__)
 
 SCAN_DIR = "scans"
+CACHE_DIR = os.path.join(SCAN_DIR, "cache")
+
 os.makedirs(SCAN_DIR, exist_ok=True)
+os.makedirs(CACHE_DIR, exist_ok=True)
 
 def get_cache_filename(url):
-    return os.path.join(SCAN_DIR, hashlib.md5(url.encode()).hexdigest() + ".json")
+    return os.path.join(
+        CACHE_DIR, 
+        hashlib.md5(url.encode()).hexdigest() + ".json"
+        )
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    
     if request.method == 'POST':
         url = request.form.get('website_url')
+
         cache_file = get_cache_filename(url)
 
         if os.path.exists(cache_file):
-            print("Using cached result")
             with open(cache_file, "r") as f:
                 cached_data = json.load(f)
-            return render_template("results.html", data=cached_data)
+            scan_id = uuid.uuid64().hex[:8]
+            scan_path = os.path.join(SCAN_DIR, f"{scan_id}.json")
+            
+            with open(scan_path, "w") as f:
+                json.dump(cached_data, f, indent=2)
+            
+            return redirect(url_for("results", scan_id=scan_id))
+        
         driver = None
         try:
             # Selenium headless browser setup
@@ -85,7 +97,7 @@ def index():
 
             driver = webdriver.Chrome(options=options)
 
-            driver.set_page_load_timeout(15)
+            driver.set_page_load_timeout(20)
 
             driver.get(url)
 
@@ -145,8 +157,6 @@ def index():
 
             # ---- STORE DATA FOR REPORT ----
 
-            scan_id = str(uuid.uuid4().hex[:8])
-
             scan_data = {
                 "url": url,
                 "scripts": scripts,
@@ -169,8 +179,14 @@ def index():
 
             with open(cache_file, "w") as f:
                 json.dump(scan_data, f, indent=2)
+            
+            scan_id = uuid.uuid4().hex[:8]
+            scan_path = os.path.join(SCAN_DIR, f"{scan_id}.json")
 
-            return render_template("results.html", data=scan_data)
+            with open(scan_path, "w") as f:
+                json.dump(scan_data, f, indent=2)
+            
+            return redirect(url_for("results", scan_id=scan_id))
 
         except Exception as e:
             traceback.print_exc()
@@ -185,25 +201,25 @@ def index():
 @app.route("/results/<scan_id>")
 def results(scan_id):
 
-    scan_path = os.path.join(SCAN_DIR, f"{scan_id}.json")
+    path = os.path.join(SCAN_DIR, f"{scan_id}.json")
 
-    if not os.path.exists(scan_path):
+    if not os.path.exists(path):
         return redirect(url_for("index"))
 
-    with open(scan_path) as f:
-        scan = json.load(f)
+    with open(path) as f:
+        data = json.load(f)
 
-    return render_template("results.html", **scan, scan_id=scan_id)
+    return render_template("results.html", data=data, scan_id=scan_id)
 
 @app.route("/report/preview/<scan_id>")
 def report_preview(scan_id):
 
-    scan_path = os.path.join(SCAN_DIR, f"{scan_id}.json")
+    path = os.path.join(SCAN_DIR, f"{scan_id}.json")
 
-    if not os.path.exists(scan_path):
+    if not os.path.exists(path):
         return redirect(url_for("index"))
 
-    with open(scan_path) as f:
+    with open(path) as f:
         scan = json.load(f)
     
     PDF_PATH = os.path.join(SCAN_DIR, f"{scan_id}.pdf")
