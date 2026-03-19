@@ -1,4 +1,4 @@
-from flask import Flask, redirect, render_template, request, send_file, url_for
+from flask import Flask, jsonify, redirect, render_template, request, send_file, url_for
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -66,7 +66,7 @@ def index():
             with open(scan_path, "w") as f:
                 json.dump(cached_data, f, indent=2)
 
-            time.sleep(15)
+            time.sleep(10)
             
             return redirect(url_for("results", scan_id=scan_id))
         
@@ -231,6 +231,8 @@ def report_preview(scan_id):
     BASE_DIR = os.path.abspath(os.getcwd())
     CHART_DIR = os.path.join(BASE_DIR, "static", "charts")
 
+    os.makedirs(CHART_DIR, exist_ok=True)
+
     generate_strength_donut(scan["strength_score"], CHART_DIR)
     generate_resource_breakdown(
         scan["scripts"],
@@ -358,10 +360,10 @@ def send_report_email(scan_id):
             server.login(sender, password)
             server.send_message(msg)
 
-        return {"status": "success"}
+        return jsonify(status="success")
 
     except Exception as e:
-        return {"status": "error", "message": str(e)}, 500
+        return jsonify(status="error", message=str(e)), 500
 
 
 if __name__ == "__main__":

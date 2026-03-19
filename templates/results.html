@@ -411,7 +411,7 @@
             formData.append("name", name)
             formData.append("email", email)
 
-            fetch("/send-report-email/{{ data.scan_id }}", {
+            fetch("/send-report-email/${scan_id}", {
                 method: "POST",
                 body: formData
             })
@@ -506,6 +506,7 @@
         document.getElementById("frameworkSelect").value = "";
     }
 
+        const scan_id ="{{data.scan_id}}";
 
     </script>
 </head>
@@ -589,7 +590,7 @@
         </p>
 
         <ul>
-            {% for item in block_summary %}
+            {% for item in data.block_summary %}
                 <li>{{ item }}</li>
             {% endfor %}
         </ul>
@@ -679,7 +680,7 @@ Copy
         </p>
 
         <div class="actions">
-            <a href="/report/preview/{{ data.scan_id }}" target="_blank">
+            <a href="/report/preview/{{ scan_id }}" target="_blank">
                 <button class="primary-btn">Preview Report</button>
             </a>
             <a> 
