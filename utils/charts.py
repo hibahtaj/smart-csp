@@ -25,21 +25,6 @@ def generate_strength_donut(score, chart_dir):
     plt.savefig(save_path(chart_dir, "strength_donut.png"), bbox_inches="tight")
     plt.close()
 
-
-def generate_strength_comparison(original, smart, chart_dir):
-    labels = ["Original CSP", "SmartCSP"]
-    values = [original, smart]
-
-    plt.figure(figsize=(5, 3))
-    plt.bar(labels, values, color=["#ABBB9C", "#495043"])
-    plt.ylim(0, 100)
-    plt.ylabel("Strength Score")
-    plt.title("CSP Strength Comparison")
-
-    plt.savefig(save_path(chart_dir, "strength_comparison_bar.png"), bbox_inches="tight")
-    plt.close()
-
-
 def generate_resource_breakdown(scripts, images, css_files, fonts, chart_dir):
     labels = ["Scripts", "Images", "CSS", "Fonts"]
     counts = [len(scripts), len(images), len(css_files), len(fonts)]
@@ -51,19 +36,6 @@ def generate_resource_breakdown(scripts, images, css_files, fonts, chart_dir):
 
     plt.savefig(save_path(chart_dir, "resource_breakdown_pie.png"), bbox_inches="tight")
     plt.close()
-
-
-def generate_test_results(allowed_count, blocked_count, chart_dir):
-    labels = ["Allowed", "Blocked"]
-    values = [allowed_count, blocked_count]
-
-    plt.figure(figsize=(4, 3))
-    plt.bar(labels, values, color=["#ABBB9C", "#495043"])
-    plt.title("Sandbox Test Results")
-
-    plt.savefig(save_path(chart_dir, "test_results_bar.png"), bbox_inches="tight")
-    plt.close()
-
 
 def generate_security_radar(smart_csp: str, chart_dir: str):
     import matplotlib.pyplot as plt

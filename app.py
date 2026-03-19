@@ -13,22 +13,14 @@ from weasyprint import HTML
 import base64
 from email_validator import validate_email, EmailNotValidError
 
-from urllib.parse import urljoin
-
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 
-from utils.scoring import compute_strength_score, compute_baseline_score, compute_readability_score, generate_advanced_resource_analysis, generate_block_summary, generate_csp_explanations, check_owasp_compliance, check_google_csp, check_w3c_compliance
-from utils.charts import (
-    generate_strength_donut,
-    generate_strength_comparison,
-    generate_resource_breakdown,
-    generate_test_results,
-    generate_security_radar
-)
+from utils.scoring import *
+from utils.charts import *
 import uuid
 import json
 import hashlib
@@ -241,14 +233,6 @@ def report_preview(scan_id):
         scan["fonts"],
         CHART_DIR
     )
-    generate_test_results(
-        len(scan["scripts"]) +
-        len(scan["images"]) +
-        len(scan["css_files"]) +
-        len(scan["fonts"]),
-        len(scan["blocked_resources"]),
-        CHART_DIR
-    )
     generate_security_radar(scan["csp_rule"], CHART_DIR)
 
 
@@ -283,7 +267,7 @@ def send_report_email(scan_id):
     scan_path = os.path.join(SCAN_DIR, f"{scan_id}.json")
 
     if not os.path.exists(scan_path):
-        return {"status": "error", "message": "Scan not found"}, 404
+        return jsonify(status="error", message="Scan not found"), 404
 
     with open(scan_path) as f:
         scan = json.load(f)
@@ -293,19 +277,19 @@ def send_report_email(scan_id):
 
     # ---- EMAIL VALIDATION ----
     if not name:
-        return {"status": "error", "message": "Name is required"}, 400
+        return jsonify(status="error", message="Name is required"), 400
 
     try:
         validated = validate_email(email)
         email = validated.email
 
     except EmailNotValidError as e:
-        return {"status": "error", "message": str(e)}, 400
+        return jsonify(status="error", message=str(e)), 400
 
     try:
 
         BASE_DIR = os.path.abspath(os.getcwd())
-        PDF_PATH = os.path.join(BASE_DIR, "static", "smartcsp_report.pdf")
+        PDF_PATH = os.path.join(SCAN_DIR, f"{scan_id}.pdf")
 
         # ---- GENERATE REPORT IF NOT PRESENT ----
         if not os.path.exists(PDF_PATH):

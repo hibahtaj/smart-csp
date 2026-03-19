@@ -198,7 +198,7 @@ def check_owasp_compliance(csp_rule):
 
 def check_w3c_compliance(csp_rule):
 
-    valid_directives = [
+    valid_directives = {
         "default-src",
         "script-src",
         "style-src",
@@ -214,14 +214,18 @@ def check_w3c_compliance(csp_rule):
         "form-action",
         "base-uri",
         "frame-ancestors"
-    ]
+    }
 
     directives = [d.strip().split()[0] for d in csp_rule.split(";") if d.strip()]
 
+    has_valid_directives = all(d in valid_directives for d in directives)
+
+    has_source_values = ("'" in csp_rule) or ("http" in csp_rule)
+
     checks = {
-        "has_valid_directives": all(d in valid_directives for d in directives),
+        "has_valid_directives": has_valid_directives,
         "directives_separated_by_semicolon": ";" in csp_rule,
-        "has_source_values": any("'" in csp_rule or "http" in csp_rule for _ in directives),
+        "has_source_values": has_source_values,
         "object_src_defined": "object-src" in csp_rule
     }
 
