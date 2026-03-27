@@ -7,18 +7,20 @@ def get_domain(url):
         return None
 
 
-def generate_csp(scripts, images, css_files, fonts, objects=None, has_inline_scripts=False):
+def generate_csp(scripts, images, css_files, fonts, objects=None, frames=None, has_inline_scripts=False):
     directives = []
 
     # script-src
     script_domains = set(
         get_domain(s) for s in scripts if s
     )
+    
+    if has_inline_scripts:
+        script_domains.add("'unsafe-inline'")
 
     if script_domains:
         script_src = ["'self'"] + sorted(d for d in script_domains if d)
         directives.append(f"script-src {' '.join(script_src)}")
-
     # img-src
     img_domains = set(
         get_domain(i) for i in images if i
@@ -52,6 +54,17 @@ def generate_csp(scripts, images, css_files, fonts, objects=None, has_inline_scr
             directives.append("object-src 'none'")
     else:
         directives.append("object-src 'none'")
+
+    #frame-src
+    if frames:
+        
+        frame_src = set(get_domain(f) for f in frames if f)
+        if frame_src:
+            directives.append(f"frame-src {' '.join(frame_src)}")
+        else:
+            directives.append("frame-src 'none'")
+    else:
+        directives.append("frame-src 'none'")
 
     if not has_inline_scripts:
         directives.append("require-trusted-types-for 'script'")

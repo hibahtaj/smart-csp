@@ -25,12 +25,12 @@ def generate_strength_donut(score, chart_dir):
     plt.savefig(save_path(chart_dir, "strength_donut.png"), bbox_inches="tight")
     plt.close()
 
-def generate_resource_breakdown(scripts, images, css_files, fonts, chart_dir):
-    labels = ["Scripts", "Images", "CSS", "Fonts"]
-    counts = [len(scripts), len(images), len(css_files), len(fonts)]
+def generate_resource_breakdown(scripts, images, css_files, fonts, frames, chart_dir):
+    labels = ["Scripts", "Images", "CSS", "Fonts", "Frames"]
+    counts = [len(scripts), len(images), len(css_files), len(fonts), len(frames)]
 
     plt.figure(figsize=(4, 4))
-    colours = ["#D1E4C0", "#ABBB9C", "#727C68", "#495043"]
+    colours = ["#D1E4C0", "#ABBB9C", "#727C68", "#495043", "#2A2E26"]
     plt.pie(counts, labels=labels, autopct="%1.0f%%", colors=colours)
     plt.title("Resource Breakdown")
 

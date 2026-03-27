@@ -104,7 +104,11 @@ def generate_csp_explanations(csp_rule: str):
             "font-src",
             "Controls the sources from which fonts can be loaded, preventing unauthorized font injection."
         ))
-
+    if "frame-src" in csp_rule:
+        explanations.append((
+            "frame-src",
+            "Controls which external sites can be embedded via iframes, preventing clickjacking and unauthorized embedding."
+        ))
     if "object-src 'none'" in csp_rule:
         explanations.append((
             "object-src",
@@ -128,7 +132,7 @@ def get_domain(url):
 
 
 def generate_advanced_resource_analysis(
-    scripts, images, css_files, fonts, blocked_resources
+    scripts, images, css_files, fonts, frames, blocked_resources
 ):
     analysis = {}
 
@@ -182,6 +186,18 @@ def generate_advanced_resource_analysis(
             ),
             "resources": fonts
         }
+    
+    if frames:
+        domains = set(get_domain(f) for f in frames if f)
+        analysis["frame-src"] = {
+            "analysis": (
+                f"{len(frames)} iframe resources were detected across "
+                f"{len(domains)} domains. Restricting frame sources prevents "
+                "clickjacking and unauthorized embedding of external content."
+            ),
+            "resources": frames
+        }
+    
     return analysis
 
 def check_owasp_compliance(csp_rule):

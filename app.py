@@ -107,8 +107,11 @@ def index():
             };
 
             return {
-                scripts: Array.from(document.querySelectorAll('script[src]'))
-                    .map(s => getAbsolute(s.src)).filter(Boolean),
+                scripts: Array.from(document.querySelectorAll('script'))
+                        .map(s => ({
+                            src: s.src ? getAbsolute(s.src) : null,
+                            inline: !s.src
+                        })),
 
                 images: Array.from(document.querySelectorAll('img[src]'))
                     .map(i => getAbsolute(i.src)).filter(Boolean),
@@ -122,18 +125,32 @@ def index():
                     .map(h => getAbsolute(h)).filter(Boolean),
 
                 objects: Array.from(document.querySelectorAll('object[data]'))
-                    .map(o => getAbsolute(o.data)).filter(Boolean)
+                    .map(o => getAbsolute(o.data)).filter(Boolean),
+                
+                frames: Array.from(document.querySelectorAll('iframe[src]'))
+                    .map(f => getAbsolute(f.src)).filter(Boolean),
             };
             """)
 
-            scripts = resources["scripts"]
-            images = resources["images"]
-            css_files = resources["css"]
-            fonts = resources["fonts"]
-            objects = resources["objects"]
+            script_data = resources.get("scripts", [])
+            external_scripts = [s["src"] for s in script_data if s["src"]]
+            inline_scripts = any(s["inline"] for s in script_data)
+            images = resources.get("images", [])
+            css_files = resources.get("css", [])
+            fonts = resources.get("fonts", [])
+            objects = resources.get("objects", [])
+            frames = resources.get("frames", [])
 
             # Generate clean CSP header
-            csp_rule = generate_csp(scripts, images, css_files, fonts, objects)
+            csp_rule = generate_csp(
+                external_scripts,
+                images,
+                css_files,
+                fonts,
+                objects,
+                frames,
+                has_inline_scripts=inline_scripts
+            )
 
             # ---- AFTER sandbox test ----
             blocked_resources = test_csp(driver, url, csp_rule)
@@ -144,7 +161,7 @@ def index():
             readability_score = compute_readability_score(csp_rule)
             block_summary = generate_block_summary(csp_rule)
             resource_analysis = generate_advanced_resource_analysis(
-    scripts, images, css_files, fonts, blocked_resources
+    external_scripts, images, css_files, fonts, frames, blocked_resources
 )
             csp_explanations = generate_csp_explanations(csp_rule)
 
@@ -156,10 +173,12 @@ def index():
 
             scan_data = {
                 "url": url,
-                "scripts": scripts,
+                "scripts": external_scripts,
+                "has_inline_scripts": inline_scripts,
                 "images": images,
                 "css_files": css_files,
                 "fonts": fonts,
+                "frames": frames,
                 "csp_rule": csp_rule,
                 "resource_analysis": resource_analysis,
                 "blocked_resources": blocked_resources,
@@ -227,10 +246,11 @@ def report_preview(scan_id):
 
     generate_strength_donut(scan["strength_score"], CHART_DIR)
     generate_resource_breakdown(
-        scan["scripts"],
-        scan["images"],
-        scan["css_files"],
-        scan["fonts"],
+        scan.get("scripts", []) or [],
+        scan.get("images", []) or [],
+        scan.get("css_files", []) or [],
+        scan.get("fonts", []) or [],
+        scan.get("frames", []) or [],
         CHART_DIR
     )
     generate_security_radar(scan["csp_rule"], CHART_DIR)
@@ -244,10 +264,10 @@ def report_preview(scan_id):
         scan_date=scan["scan_date"],
         csp_rule=scan["csp_rule"],
 
-        scripts=scan["scripts"],
-        images=scan["images"],
-        css_files=scan["css_files"],
-        fonts=scan["fonts"],
+        scripts=scan.get("scripts", []) or [],
+        images=scan.get("images", []) or [],
+        css_files=scan.get("css_files", []) or [],
+        fonts=scan.get("fonts", []) or [],
         blocked_resources=scan["blocked_resources"],
 
         strength_score=scan["strength_score"],
