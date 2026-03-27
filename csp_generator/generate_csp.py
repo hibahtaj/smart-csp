@@ -1,3 +1,4 @@
+import secrets
 from urllib.parse import urlparse
 
 def get_domain(url):
@@ -10,13 +11,14 @@ def get_domain(url):
 def generate_csp(scripts, images, css_files, fonts, objects=None, frames=None, has_inline_scripts=False):
     directives = []
 
+    nonce = None
+
     # script-src
-    script_domains = set(
-        get_domain(s) for s in scripts if s
-    )
+    script_domains = set(get_domain(s) for s in scripts if get_domain(s))
     
     if has_inline_scripts:
-        script_domains.add("'unsafe-inline'")
+        nonce = secrets.token_urlsafe(16)
+        script_domains.add(f"'nonce-{nonce}")
 
     if script_domains:
         script_src = ["'self'"] + sorted(d for d in script_domains if d)
@@ -69,4 +71,7 @@ def generate_csp(scripts, images, css_files, fonts, objects=None, frames=None, h
     if not has_inline_scripts:
         directives.append("require-trusted-types-for 'script'")
 
-    return "Content-Security-Policy: " + "; ".join(directives) + ";"
+    return {
+        "csp": "Content-Security-Policy: " + "; ".join(directives) + ";",
+        "nonce": nonce
+    }

@@ -363,6 +363,7 @@
     </style>
 
     <script>
+        const scan_id = "{{ scan_id }}";
         function copyToClipboard(elementId, button) {
             const text = document.getElementById(elementId).innerText;
 
@@ -476,7 +477,11 @@
     {
     context.Response.Headers.Add("Content-Security-Policy", "${csp}");
     await next();
-    });`
+    });`,
+
+            laravel: `return response()
+    ->view('index')
+    ->header('Content-Security-Policy', "${csp}");`
 
         };
 
@@ -506,7 +511,92 @@
         document.getElementById("frameworkSelect").value = "";
     }
 
-        const scan_id = "{{ scan_id }}";
+    function showNonceFrameworkCode() {
+
+        var value = document.getElementById("nonceFrameworkSelect").value;
+        var codeBlock = document.getElementById("nonce-code");
+
+        var code = "";
+
+        if (value === "flask") {
+            code =
+    "import secrets\n" +
+    "from flask import make_response, render_template\n\n" +
+    "@app.route('/')\n" +
+    "def index():\n" +
+    "    nonce = secrets.token_urlsafe(16)\n\n" +
+    "    response = make_response(render_template('index.html', nonce=nonce))\n\n" +
+    "    response.headers['Content-Security-Policy'] = \n" +
+    "        \"script-src 'self' 'nonce-\" + nonce + \"'; object-src 'none';\"\n\n" +
+    "    return response\n\n" 
+        }
+
+        else if (value === "django") {
+            code =
+    "import secrets\n" +
+    "from django.shortcuts import render\n\n" +
+    "def index(request):\n" +
+    "    nonce = secrets.token_urlsafe(16)\n\n" +
+    "    response = render(request, 'index.html', {'nonce': nonce})\n\n" +
+    "    response['Content-Security-Policy'] = \n" +
+    "        \"script-src 'self' 'nonce-\" + nonce + \"'; object-src 'none';\"\n\n" +
+    "    return response\n\n" 
+        }
+
+        else if (value === "express") {
+            code =
+    "const crypto = require('crypto');\n\n" +
+    "app.use((req, res, next) => {\n" +
+    "    const nonce = crypto.randomBytes(16).toString('base64');\n\n" +
+    "    res.locals.nonce = nonce;\n\n" +
+    "    res.setHeader('Content-Security-Policy',\n" +
+    "        \"script-src 'self' 'nonce-\" + nonce + \"'; object-src 'none';\"\n" +
+    "    );\n\n" +
+    "    next();\n" +
+    "});\n\n" 
+        }
+
+        else if (value === "spring") {
+            code =
+    "SecureRandom random = new SecureRandom();\n" +
+    "byte[] bytes = new byte[16];\n" +
+    "random.nextBytes(bytes);\n\n" +
+    "String nonce = Base64.getEncoder().encodeToString(bytes);\n\n" +
+    "response.setHeader(\n" +
+    "    \"Content-Security-Policy\",\n" +
+    "    \"script-src 'self' 'nonce-\" + nonce + \"'; object-src 'none';\"\n" +
+    ");";
+        }
+
+        else if (value === "aspnet") {
+            code =
+    "var nonceBytes = RandomNumberGenerator.GetBytes(16);\n" +
+    "var nonce = Convert.ToBase64String(nonceBytes);\n\n" +
+    "context.Items['Nonce'] = nonce;\n\n" +
+    "context.Response.Headers['Content-Security-Policy'] =\n" +
+"    \"script-src 'self' 'nonce-\" + nonce + \"'; object-src 'none';\";\n";
+        }
+        else if (value === "laravel"){
+    code =
+"use Illuminate\\Support\\Facades\\Route;\n\n" +
+
+"Route::get('/', function () {\n" +
+
+"    $nonce = base64_encode(random_bytes(16));\n\n" +
+
+"    return response()\n" +
+"        ->view('index', ['nonce' => $nonce])\n" +
+"        ->header(\n" +
+"            'Content-Security-Policy',\n" +
+"            \"script-src 'self' 'nonce-\" . $nonce . \"'; object-src 'none';\"\n" +
+"        );\n" +
+
+"});\n";
+            
+        }
+
+        codeBlock.textContent = code;
+    }
 
     </script>
 </head>
@@ -611,6 +701,7 @@
 <option value="express">Express.js</option>
 <option value="spring">Spring Boot</option>
 <option value="aspnet">ASP.NET Core</option>
+<option value="laravel">Laravel</option>
 </select>
 </div>
 
@@ -640,35 +731,68 @@ Copy
 
 </div>
 
+<!-- ================= NONCE ================= -->
+    <div class="section">
+        <h2>Nonce-Based Script Authorization</h2>
 
-      
-    
-    <!-- ================= NONCE ================= -->
+        <p>
+            A nonce (number used once) is a cryptographically secure random value that
+            allows specific inline scripts to execute under a strict Content Security Policy.
+        </p>
 
-    <h2>Nonce-Based Script Authorization</h2>
+        <p>
+            <strong>SmartCSP generates a sample nonce for demonstration purposes only.</strong>
+            This value illustrates how nonce-based CSP policies are structured and applied,
+            but it is <strong>not intended for direct production use</strong>.
+        </p>
 
-    <p>
-        A nonce (number used once) is a cryptographically secure random value that
-        allows specific inline scripts to execute under a strict Content Security Policy.
-    </p>
+        <p>
+            In real-world deployments, nonce values must be:
+        </p>
+        <ul>
+            <li>Generated dynamically on the server for <strong>each HTTP request</strong></li>
+            <li>Embedded in both the CSP header and corresponding script tags</li>
+            <li>Never reused or hardcoded</li>
+        </ul>
 
-    <p>
-        SmartCSP does not generate nonces automatically, as nonce values must be
-        created securely on the server for each request. Using static or reused
-        nonces would weaken CSP protections.
-    </p>
+        <h3>Nonce Integration Guide</h3>
 
-    <pre class="code-block">
-    Content-Security-Policy: script-src 'self' 'nonce-{RANDOM_NONCE}'
+        <p class="muted">
+            Nonce-based CSP requires <strong>dynamic generation per request</strong>. 
+            Select your backend framework to see how to securely generate and inject a nonce.
+            Web servers alone cannot implement nonce-based CSP without backend support.
+        </p>
 
-    &lt;script nonce="{RANDOM_NONCE}"&gt;
-        // Inline script
-    &lt;/script&gt;
-    </pre>
+        <div class="dropdown-row">
+            <div class="dropdown-group">
+                <h4>Application Frameworks</h4>
+                <select id="nonceFrameworkSelect" onchange="showNonceFrameworkCode()" class="styled-dropdown">
+                    <option value="">Select Framework</option>
+                    <option value="flask">Flask</option>
+                    <option value="django">Django</option>
+                    <option value="express">Express.js</option>
+                    <option value="spring">Spring Boot</option>
+                    <option value="aspnet">ASP.NET Core</option>
+                    <option value="laravel">Laravel</option>
+                </select>
+            </div>
+        </div>
 
-    <p class="muted">
-        Refer to the full report for detailed nonce usage guidelines and best practices.
-    </p>
+        <div class="code-container">
+            <button class="copy-btn" onclick="copyToClipboard('nonce-code', this)">
+            Copy
+            </button>
+
+            <pre id="nonce-code" class="code-block"></pre>
+        </div>
+
+        <p class="muted">
+            Refer to the full report for detailed nonce usage guidelines and best practices.
+        </p>
+
+     </div>
+
+
 
     <!-- ================= ACTIONS ================= -->
     <div class="section">

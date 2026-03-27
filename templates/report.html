@@ -459,20 +459,25 @@ Content-Security-Policy-Report-Only: ...
     </p>
 
     <p>
-        SmartCSP does not generate or embed nonces automatically, as nonce values must be
-        created securely on the server for each HTTP response. Including a static or reused
-        nonce would weaken the security guarantees provided by CSP and could be exploited
-        by attackers.
+        <strong>SmartCSP provides a sample nonce as part of the generated CSP for demonstration purposes.</strong>
+        However, in real-world deployments, nonce values must be generated dynamically
+        by the server for each HTTP response. Using a static or reused nonce would weaken
+        CSP protections and could introduce security risks.
     </p>
+
+    {% if nonce %}
+    <p>
+        <strong>Sample Nonce (Demonstration Only):</strong> {{ nonce }}
+    </p>
+    {% endif %}
 
     <h3>Generating a Secure Nonce</h3>
     <p>
         A new nonce must be generated for every request using a cryptographically secure
-        random number generator. Both Python and Node JS code to generate nonce are as given below:
+        random number generator.
     </p>
 
     <h4>Python</h4>
-
     <div class="code-block">
 import secrets
 import base64
@@ -482,44 +487,40 @@ def generate_nonce():
     return base64.b64encode(random_bytes).decode("utf-8")
     </div>
 
-    
-    <h4>Node JS</h4>
-
+    <h4>Node.js</h4>
     <div class="code-block">
 import crypto from 'node:crypto';
 
 function generateNonce() {
   const bytes = crypto.randomBytes(16);
-
-  const nonce = bytes.toString('base64');
-
-  return nonce;
+  return bytes.toString('base64');
 }
     </div>
 
-
     <h3>Including the Nonce in the CSP Header</h3>
     <p>
-        The generated nonce must be included in the Content Security Policy header so that
-        the browser knows which inline scripts are allowed to execute.
+        The generated nonce must be included in the Content Security Policy header:
     </p>
 
     <div class="code-block">
-Content-Security-Policy: script-src 'self' 'nonce-{RANDOM_NONCE}'; object-src 'none';
+Content-Security-Policy: script-src 'self' 'nonce-{DYNAMIC_NONCE}'; object-src 'none';
     </div>
 
     <h3>Applying the Nonce to Inline Scripts</h3>
     <p>
-        The same nonce value used in the CSP header must also be applied to the corresponding
-        inline script elements in the HTML.
+        The same nonce value must also be applied to inline script elements:
     </p>
 
     <div class="code-block">
-&lt;script nonce="{RANDOM_NONCE}"&gt;
+&lt;script nonce="{DYNAMIC_NONCE}"&gt;
     // Inline JavaScript code
 &lt;/script&gt;
     </div>
-</div>
 
+    <p class="muted">
+        Note: The nonce shown above is a placeholder. In production, it must be dynamically
+        generated for each request and never reused.
+    </p>
+</div>
 </body>
 </html>

@@ -142,7 +142,7 @@ def index():
             frames = resources.get("frames", [])
 
             # Generate clean CSP header
-            csp_rule = generate_csp(
+            csp_data = generate_csp(
                 external_scripts,
                 images,
                 css_files,
@@ -151,6 +151,8 @@ def index():
                 frames,
                 has_inline_scripts=inline_scripts
             )
+            csp_rule = csp_data["csp"]
+            nonce = csp_data["nonce"]
 
             # ---- AFTER sandbox test ----
             blocked_resources = test_csp(driver, url, csp_rule)
@@ -180,6 +182,7 @@ def index():
                 "fonts": fonts,
                 "frames": frames,
                 "csp_rule": csp_rule,
+                "nonce": nonce,
                 "resource_analysis": resource_analysis,
                 "blocked_resources": blocked_resources,
                 "strength_score": smart_score,
@@ -263,6 +266,7 @@ def report_preview(scan_id):
         url=scan["url"],
         scan_date=scan["scan_date"],
         csp_rule=scan["csp_rule"],
+        nonce=scan.get("nonce"),
 
         scripts=scan.get("scripts", []) or [],
         images=scan.get("images", []) or [],
