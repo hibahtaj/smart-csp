@@ -459,17 +459,10 @@ Content-Security-Policy-Report-Only: ...
     </p>
 
     <p>
-        <strong>SmartCSP provides a sample nonce as part of the generated CSP for demonstration purposes.</strong>
-        However, in real-world deployments, nonce values must be generated dynamically
-        by the server for each HTTP response. Using a static or reused nonce would weaken
-        CSP protections and could introduce security risks.
+        SmartCSP recommends using nonce-based CSP for handling inline scripts.
+        Nonce values must be generated dynamically by the server for each request
+        and cannot be precomputed or reused. 
     </p>
-
-    {% if nonce %}
-    <p>
-        <strong>Sample Nonce (Demonstration Only):</strong> {{ nonce }}
-    </p>
-    {% endif %}
 
     <h3>Generating a Secure Nonce</h3>
     <p>

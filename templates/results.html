@@ -635,21 +635,16 @@
             </button>
 
             <pre id="csp-text" class="code-block">{{ data.csp_rule }}</pre>
-        {% if owasp_verified %}
-            <div class="standard-verifier">
-            ✔ OWASP Security Guidelines Compliant
-            </div>
-        {% endif %}
-        {% if w3c_verified %}
-            <div class="standard-verifier">
-            ✔ W3C Security Guidelines Compliant
-            </div>
-        {% endif %}
-        {% if google_verified %}
-            <div class="standard-verifier">
-            ✔ Google CSP Security Guidelines Compliant
-            </div>
-        {% endif %}
+            {% if data.has_inline_scripts %}
+            <p class="muted">
+                This policy includes inline script restrictions. TO safely allow inline injection, you must implement a nonce-based CSP as described in the "Nonce Usage Guide" as given below.
+            </p>
+            {% endif %}
+            {% if data.owasp_verified %}
+                <div class="standard-verifier">
+                ✔ OWASP Security Guidelines Compliant
+                </div>
+            {% endif %}
         </div>
     </div>
 
@@ -741,9 +736,9 @@ Copy
         </p>
 
         <p>
-            <strong>SmartCSP generates a sample nonce for demonstration purposes only.</strong>
-            This value illustrates how nonce-based CSP policies are structured and applied,
-            but it is <strong>not intended for direct production use</strong>.
+            SmartCSP recommends using nonce-based CSP for handling inline scripts.
+            Nonce values must be generated dynamically by the server for each request
+            and cannot be precomputed or reused.
         </p>
 
         <p>
@@ -760,7 +755,10 @@ Copy
         <p class="muted">
             Nonce-based CSP requires <strong>dynamic generation per request</strong>. 
             Select your backend framework to see how to securely generate and inject a nonce.
-            Web servers alone cannot implement nonce-based CSP without backend support.
+            Web servers alone cannot implement nonce-based CSP without backend support.  
+            <strong>
+                Please remember to include the nonce as an attribute in all script tags of your code as well.
+            </strong>
         </p>
 
         <div class="dropdown-row">
