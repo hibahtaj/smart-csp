@@ -40,16 +40,39 @@ def get_cache_filename(url):
         hashlib.md5(url.encode()).hexdigest() + ".json"
         )
 
+from urllib.parse import urlparse
+
+def normalize_and_validate_url(url):
+    if not url:
+        return None
+
+    url = url.strip()
+
+    if not url.startswith(("http://", "https://")):
+        url = "https://" + url
+
+    try:
+        result = urlparse(url)
+
+        if result.scheme in ("http", "https") and result.netloc:
+            return url
+    except:
+        pass
+
+    return None
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        url = request.form.get('website_url')
+        url = normalize_and_validate_url(request.form.get("url"))
+
+        if not url:
+            return render_template("index.html", invalid_url=True)
         url = url.strip().lower().rstrip("/")
 
         cache_file = get_cache_filename(url)
 
         if os.path.exists(cache_file):
-            print("CACHE HIT")
             with open(cache_file, "r") as f:
                 cached_data = json.load(f)
             scan_id = uuid.uuid4().hex[:8]

@@ -418,7 +418,13 @@
                 <form method="POST" action="/" onsubmit="showStatus()">
                     <label class="hero-label">Website URL</label>
 
-                    <input type="text" name="website_url" placeholder="https://example.com" required />
+                    <input 
+                        type="text"
+                        name="url"
+                        id="urlInput"
+                        required
+                        placeholder="https://example.com"
+                    >
 
                     <button type="submit" class="primary-btn">Generate CSP</button>
                 </form>
@@ -648,6 +654,21 @@
                 }
 
                 draw();
+
+                window.onload = function() {
+                    const invalid = "{{ invalid_url | default(false) }}";
+
+                    if (invalid === "True" || invalid === "true") {
+                        const input = document.getElementById("urlInput");
+
+                        input.setCustomValidity("Please enter a valid URL (include http/https)");
+                        input.reportValidity();
+
+                        input.addEventListener("input", function() {
+                            input.setCustomValidity("");
+                        });
+                    }
+                };
             </script>
         </section>
     </body>
