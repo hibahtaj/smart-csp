@@ -54,7 +54,11 @@ def normalize_and_validate_url(url):
     try:
         result = urlparse(url)
 
-        if result.scheme in ("http", "https") and result.netloc:
+        if (
+            result.scheme in ("http", "https") and
+            result.netloc and
+            "." in result.netloc   
+        ):
             return url
     except:
         pass
@@ -119,7 +123,10 @@ def index():
 
             driver.set_page_load_timeout(20)
 
-            driver.get(url)
+            try:
+                driver.get(url)
+            except:
+                return render_template("index.html", invalid_url=True)
 
             driver.implicitly_wait(2)
 
@@ -179,7 +186,11 @@ def index():
             )
 
             # ---- AFTER sandbox test ----
-            blocked_resources = test_csp(driver, url, csp_rule)
+            try:
+                blocked_resources = test_csp(driver, url, csp_rule)
+            except Exception as e:
+                print("CSP test failed:", e)
+                blocked_resources = []
 
             # ---- METRICS ----
             smart_score = compute_strength_score(csp_rule)
